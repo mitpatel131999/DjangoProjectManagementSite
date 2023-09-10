@@ -1,0 +1,1170 @@
+<html>
+  <head>
+    <title>Project Management View</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  </head>
+  <body>
+ 
+     <p> Report data is {{report_date}} </p>
+     <p> Project ID  is {{project_id}} </p>
+
+     {% for x in Project_schidule %}
+
+      <p> {{x}} {{x.Task}}</p> 
+     {% endfor %}
+
+    <py-config>
+      packages = ["matplotlib", "pandas" ,"numpy","networkx","scipy"]
+    </py-config>
+
+<py-script>
+    
+    import sys
+    import numpy as np
+    import pandas as pd
+    import networkx as nx
+    from scipy.interpolate import make_interp_spline
+    import matplotlib.pyplot as plt
+    #from flet import *
+    
+    
+    REPORT_DATE = int({{report_date}})
+    
+    def printf(format, *args):
+        sys.stdout.write(format % args)
+    
+    Max_POSSIBLE_RESOURCE = 0
+    def read_file(filename):
+        pathData = pd.read_csv(filename)
+        return pathData
+    
+    class Project:
+
+        json_data=[]
+        activity = []
+        Predecessors = {}
+        Successors = {}
+        Duration = {}
+    
+        Planned_Cost ={}
+        Actual_Complete = {}
+        Actual_Cost_till_Now = {}
+    
+        #Resource_Requirement_day = {}
+        #Relation = {}
+        ES = {}
+        EF = {}
+        LS = {}
+        LF = {}
+        Leg = {}
+        SLACK = {}
+    
+        FF_S = {}
+        Critical_Path = {}
+        Critical_Path_LIST = [['m', 'i', 't']]
+    
+        depth = {}
+    
+        # First
+        ACWP={}
+        BCWP={}
+        BCWS={}
+        ACWP_per_week = {}
+        BCWP_per_week = {}
+        BCWS_per_week = {}
+        CPI={}
+        CV={}
+        SPI={}
+        SV={}
+    
+    
+    def FS( prj , forward , a , b , t ):
+        if forward == 1:
+            return prj.ES[a] + int(t) + prj.Duration[a]
+        else:
+            return prj.LS[b] - int(t) - prj.Duration[a]
+    def tream(str):
+        ans = ""
+        for i in str:
+            if i == '$' or i == ' ' or i == ',':
+                continue
+            ans += i
+        return float(ans)
+    
+    
+    def initilize_data(prj,rows):
+        #print(len(rows['Activity']))
+        prj.json_data={{Project_schidule}}
+        print(prj.json_data)
+        
+        for x in prj.json_data:
+            print(x)
+            print(type(x)) 
+            prj.activity.append(x['Task'])
+            print(prj.activity)
+            prj.Duration[x['Task']]=float(x['Scheduled_Duration_Week'])
+            prj.Planned_Cost[x['Task']] = float(x['Planned_Cost'])
+            prj.Actual_Complete[x['Task']] = float(x['Actual_Complete'])
+            prj.Actual_Cost_till_Now[x['Task']] = float(x['Actual_Cost_till_Now'])
+            
+            tamp_list = []
+            for y in x['Dependency']:
+                tamp_list.append([y,'FS','0'])
+            prj.Predecessors[x['Task']] = tamp_list
+            
+        '''
+        for i in range (len( rows['Task'] )):
+            #print(rows['Activity'][i])
+            prj.activity.append(rows['Task'][i])
+            prj.Duration[rows['Task'][i]] = float(rows['Scheduled Duration (Week)'][i])
+            prj.Planned_Cost[rows['Task'][i]] = tream(rows['Planned Cost '][i])
+            prj.Actual_Complete[rows['Task'][i]] = float(rows['Actual Complete%'][i])
+            prj.Actual_Cost_till_Now[rows['Task'][i]] = tream( rows['Actual Cost till Now'][i])
+            if rows['Dependency'][i] == "NONE" or rows['Dependency'][i] == "None" or rows['Dependency'][i] == "none" or rows['Dependency'][i] == "---":
+                prj.Predecessors[rows['Task'][i]]=[]
+                continue
+            tamp_list = []
+            for j in rows['Dependency'][i]:
+                if j == ',' or j == ' ':
+                    continue
+                tamp_list.append([j,'FS','0'])
+    
+            prj.Predecessors[rows['Task'][i]] = tamp_list
+        '''
+    
+        for item in prj.activity:
+            for rel1 in prj.Predecessors[item]:
+                i = rel1[0]
+                if i not in prj.Successors:
+                    prj.Successors[i] = list(item)
+                else:
+                    prj.Successors[i].append(item)
+    
+        for item in prj.activity:
+            if item not in prj.Successors:
+                prj.Successors[item]=[]
+    
+        for item in prj.activity:
+            prj.ES[item] = -1
+            prj.EF[item] = -1
+            prj.LS[item] = -1
+            prj.LF[item] = -1
+            prj.SLACK[item] = -1
+            prj.Leg[item] = 0
+    
+    def init(prj):
+        for item in prj.activity:
+            prj.ES[item] = -1
+            prj.EF[item] = -1
+            prj.LS[item] = -1
+            prj.LF[item] = -1
+            prj.SLACK[item] = -1
+    
+    
+    def forwardPass(prj):
+        total_activity = len(prj.activity)
+        done_activity = 0;
+        Done = {}
+        for item in prj.activity:
+            if len(prj.Predecessors[item]) == 0:
+                prj.ES[item] = 0 + prj.Leg[item]
+                prj.EF[item] = prj.Duration[item]
+                done_activity = done_activity + 1
+                Done[item] = 1
+            else:
+                Done[item] = -1
+    
+        while done_activity < total_activity:
+    
+            for item in prj.activity:
+                if Done[item] == 1:
+                    continue
+                tamp_list = []
+                done_prececessors = 0
+                for rel in prj.Predecessors[item]:
+                    i = rel[0]
+                    if rel[1] == 'FS':
+                        EF_TAMP = FS(prj,1, i, item, rel[2])
+    
+                    tamp_list.append(EF_TAMP)
+                    if Done[i] == 1:
+                        done_prececessors = done_prececessors + 1
+                if done_prececessors == len(prj.Predecessors[item]):
+                    prj.ES[item] = max(tamp_list) + prj.Leg[item]
+                    prj.EF[item] = prj.ES[item] + prj.Duration[item]
+                    Done[item] = 1
+                    done_activity = done_activity + 1
+    
+    
+    def max_EF(prj):
+        list = []
+        for item in prj.activity:
+            list.append(prj.EF[item])
+        return max(list)
+    
+    
+    def BackwardPass(prj):
+        total_activity = len(prj.activity)
+        done_activity = 0;
+        Done = {}
+        for item in prj.activity:
+            if len(prj.Successors[item]) == 0:
+                prj.LF[item] = max_EF(prj)
+                prj.LS[item] = prj.LF[item] - prj.Duration[item]
+                done_activity = done_activity + 1
+                Done[item] = 1
+            else:
+                Done[item] = -1
+    
+        while done_activity < total_activity:
+    
+            for item in prj.activity:
+                if Done[item] == 1:
+                    continue
+                tamp_list = []
+                done_Successor = 0
+                for i in prj.Successors[item]:
+                    for j in prj.Predecessors[i]:
+                        if j[0] == item:
+                            rel = j
+                    if rel[1] == 'FS':
+                        LS_TAMP = FS(prj,0, item, i, rel[2])
+                    tamp_list.append(LS_TAMP - prj.Leg[i])
+                    if Done[i] == 1:
+                        done_Successor = done_Successor + 1
+                if done_Successor == len(prj.Successors[item]):
+                    prj.LS[item] = min(tamp_list)
+                    prj.LF[item] = prj.LS[item] + prj.Duration[item]
+                    Done[item] = 1
+                    done_activity = done_activity + 1
+    
+    
+    def Calculate_SLACK_AND_(prj):
+        for item in prj.activity:
+            prj.SLACK[item] = prj.LS[item] - prj.ES[item]
+            if prj.SLACK[item] == 0:
+                prj.Critical_Path[item] = "YES"
+            else:
+                prj.Critical_Path[item] = "NO"
+    
+    
+    def FF_CALCULATION(prj):
+        for item in prj.activity:
+            tamp_list = []
+            for rel in prj.Successors[item]:
+                for pre in prj.Predecessors[rel]:
+                    if pre[0] == item:
+                        if pre[1] == 'FS':
+                            tamp_list.append(prj.ES[rel] - int(pre[2]) - prj.EF[item])
+    
+            if len(tamp_list) == 0:
+                mn = 0
+            else:
+                mn = max(min(tamp_list), 0)
+            prj.FF_S[item] = mn
+    
+    
+    
+    
+    def DFS(prj,list_node):
+        if len(prj.Successors[list_node[-1]]) == 0:
+            if prj.SLACK[list_node[-1]] == 0:
+                print(list_node, end='   ')
+                tmp_list = []
+                for i in list_node:
+                    tmp_list.append(i)
+                prj.Critical_Path_LIST.append(tmp_list)
+            else:
+                return
+        else:
+            tmp = list_node
+            for rel in prj.Successors[list_node[-1]]:
+                i = rel
+                tamp_list = list_node
+                if prj.SLACK[i] == 0:
+                    tamp_list.append(i)
+                    DFS(prj,tamp_list)
+                    list_node.remove(list_node[-1])
+                else:
+                    continue
+    
+    
+    def Print_Critical_Path(prj):
+        # remove_LIST()
+        print(" Critical Path ", end=' ')
+        for item in prj.activity:
+            if len(prj.Predecessors[item]) == 0 and prj.SLACK[item] == 0:
+                list = []
+                list.append(item)
+                DFS(prj,list)
+        print('')
+    
+    
+    def remove_LIST(prj):
+        # Critical_Path_LIST=[['M','T','T']]
+        while (len(prj.Critical_Path_LIST) > 0):
+            prj.Critical_Path_LIST.remove(prj.Critical_Path_LIST[-1])
+    
+    
+    def Print_Total_Duration(prj):
+        print(' Project Duration ', max_EF(prj))
+    
+    
+    def Print_DATA(prj):
+        print("-" * 75)
+        printf("| %10s | %10s | %5s | %5s | %5s | %5s | %5s | %5s |\n", "Activity", "Duration", "ES", "EF", "LS", "LF",
+               "TF", "FF")
+        print("|============|============|=======|=======|=======|=======|=======|=======|")
+        # print("="*77)
+        for item in prj.activity:
+            printf("| %10s | %10d | %5d | %5d | %5d | %5d | %5d | %5d |\n", item, prj.Duration[item], prj.ES[item], prj.EF[item],
+                   prj.LS[item], prj.LF[item], prj.SLACK[item], prj.FF_S[item])
+        print("-" * 75)
+    
+    
+    
+    def max_depth( prj,node,dp):
+        prj.depth[node] = max(prj.depth[node], dp)
+        if len(prj.Successors[node]) == 0:
+            return 1
+        else:
+            list_ans=[]
+            for i in prj.Successors[node]:
+                list_ans.append(max_depth(prj,i,dp+1))
+            return max(list_ans)
+    
+    def set_pos(prj):
+        for item in prj.activity:
+            prj.depth[item] = 0
+        location={}
+        pos = {}
+        list=[]
+        X = -1
+        y =  0
+        x = 1
+        for item in prj.activity:
+            if len(prj.Predecessors[item]) == 0:
+                list.append(item)
+                x = min( x,2/(max_depth(prj,item,0)+1))
+        t = 2/(len(list)+1)
+        #print(depth)
+        X = X + x
+        j = 1.0
+        for i in list:
+            Y = float(t) * float(j)
+            pos[i] = [X, Y]
+            j += 1
+        dp = 1
+        while True:
+            list_success = []
+            while (len(list_success) != 0):
+                list_success.remove(list[-1])
+            for i in list:
+                for j in prj.Successors[i]:
+                    if prj.depth[j] == dp and j not in list_success:
+                    #if depth[j] == dp :
+                        list_success.append(j)
+            while(len(list)!=0):
+                list.remove(list[-1])
+            dp += 1
+            for i in list_success:
+                list.append(i)
+            if len(list) == 0:
+                break
+            t =float( 2 / (len(list) + 1))
+            #print(" tt ",t)
+            #print(list)
+            X = X + x
+            j = 1.0
+            for i in list:
+                Y = float(t) *float(j)
+                pos[i] = [ X , Y]
+                j += 1
+    
+        #print('pos in ',pos)
+        return pos
+    
+    class GraphVisualization:
+    
+        def __init__(self):
+            self.visual = []
+            self.wei = []
+    
+        def addEdge(self, a, b):
+            temp = [a, b,'0']
+            self.visual.append(temp)
+            self.wei.append(0)
+        def visualize(self,prj):
+            G = nx.DiGraph()
+            fig, ax = plt.subplots(num=None, figsize=(15, 10), dpi=60)
+            #G.add_edges_from(self.visual)
+            G.add_weighted_edges_from(self.visual)
+            pos = nx.spring_layout(G)
+            #set_pos()
+            #print(pos)
+            pos=set_pos(prj)
+            color=[]
+            for item in G:
+                if prj.Critical_Path[item] == "YES":
+                    color.append('red')
+                else:
+                    color.append('orange')
+            color_eds = []
+            det_lag = []
+            for edge in G.edges():
+                #print(edge[0],edge[1])
+                det_lag.append(0)
+                if prj.Critical_Path[edge[0]] == "YES" and prj.Critical_Path[edge[1]] == "YES" :
+                    color_eds.append('red')
+                else:
+                    color_eds.append('black')
+            nx.draw_networkx_nodes(G,pos,node_size=1000,node_color=color,node_shape="s",ax=ax,linewidths=1)
+            #nx.draw_networkx_edges(G,pos,edgelist=G.edges(),edge_color=color_eds,arrowsize=100)
+            for item in G.nodes():
+                xy = pos[item]
+                node_str = "ES:=" + str(prj.ES[item]) + " | " + str(item) + " | " + "EF:=" +  str(prj.EF[item]) + "\n---------|----|--------\n"
+                node_str = node_str + "LS:=" + str(prj.LS[item]) + " | " + str(prj.Duration[item]) + " | " + "LF:="   + str(prj.LF[item])
+                #ax.annotate(node_str, xy=xy, xytext=(50, 5), textcoords="offset points", bbox=dict(boxstyle="round", fc="lightgrey"), arrowprops=dict(arrowstyle="-"), fontsize=10)
+                ax.annotate(node_str, xy=xy, xytext=(0,0), textcoords="offset points",bbox=dict(boxstyle="round", fc="lightgrey"), arrowprops=dict(arrowstyle="-"), fontsize=10)
+            for edge in G.edges():
+                xy = [(pos[edge[0]][0]+pos[edge[1]][0])/2 ,(pos[edge[0]][1]+pos[edge[1]][1])/2 ]
+                detail = "Lag = " + str(prj.Leg[edge[1]])
+                #print(xy)
+                ax.annotate(detail, xy=xy, xytext=(0, 0), textcoords="offset points",bbox=dict(boxstyle="round", fc="lightgrey"), arrowprops=dict(arrowstyle="-"), fontsize=10)
+    
+            nx.draw_networkx_edges(G, pos, edgelist=G.edges(),edge_cmap=color_eds, edge_color=color_eds,edge_vmax=det_lag,edge_vmin=det_lag, arrowsize=50)
+            #nx.draw_networkx_edges_labels(G, pos, edgelist=G.edges(), arrowsize=25)
+            nx.draw_networkx_labels(G,pos,font_size=5)
+            #plt.show()
+            display(plt, target="graph-area1", append=False)
+            plt.close()
+    
+    def graph(prj):
+        node={}
+    
+        for item in prj.activity:
+            node_str = str(prj.ES[item])+" | "+str(item)+" | "+str(prj.EF[item]) +"\n---|----|---\n"
+            node_str = node_str + str(prj.LS[item])+" | "+str(prj.Duration[item])+" | "+str(prj.LF[item])
+            #print(node_str)
+            #print("--------------")
+            #node[item]= node_str
+            node[item] = item
+        G = GraphVisualization()
+        for item in prj.activity:
+            for i in prj.Successors[item]:
+                G.addEdge(node[item],node[i])
+    
+        G.visualize(prj)
+    
+    
+    def print_barChart(prj):
+        fig, gnt = plt.subplots()
+    
+        # Setting Y-axis limits
+        gnt.set_ylim(0, len(prj.activity) + 1)
+    
+        # Setting X-axis limits
+        gnt.set_xlim(0, max_EF(prj))
+    
+        # Setting labels for x-axis and y-axis
+        gnt.set_xlabel('Time in days ')
+        gnt.set_ylabel('Activity')
+    
+        # Setting ticks on y-axis
+        list_m = []
+        list_y = []
+        j = 0
+        for item in prj.activity:
+            list_m.append(item)
+            list_y.append(j*3 +2)
+            j += 1
+        list_m.append(' ')
+        list_y.append(j * 3 + 2)
+        gnt.set_yticks(list_y)
+    
+    
+        # Labelling tickes of y-axis
+    
+        gnt.set_yticklabels(list_m)
+    
+        # Setting graph attribute
+        gnt.grid(True)
+    
+        i = 0
+        for item in prj.activity:
+            #if 'Original' not in legend_items:
+                #legend_items.append('Original')
+    
+            if prj.Leg[item] != 0:
+                gnt.broken_barh([(prj.ES[item]-prj.Leg[item] , prj.Duration[item] ) ], (2 + i * 3, 1), facecolors=('tab:blue'))
+                #if 'Revised' not in legend_items:
+                    #legend_items.append('Revised')
+            gnt.broken_barh([(prj.ES[item], prj.Duration[item])], (1.5 + i * 3, 1), facecolors=('tab:red'))
+            i += 1
+        #x_tick = return_x_tick()
+        legend_items = ['Original', 'Revised']
+        plt.legend(legend_items,loc='lower right')
+    
+        #plt.xticks(x_tick)
+        #plt.show()
+        display(plt, target="graph-area2", append=False)
+        plt.close()
+        
+    
+    
+    
+    
+    ### neec to check multiple cases
+    
+    def Part_A():
+    
+        print('='*100)
+        print(' PART =>  A ')
+        print('=' * 100)
+    
+        first = Project()
+        pathData=None
+        initilize_data(first, pathData)
+        # MAX_WORKER =  int(input('Enter Maximum Resource Per Day := '))
+    
+        '''
+        below code will run for original project without constraining 
+        '''
+    
+        forwardPass(first)
+        BackwardPass(first)
+        Calculate_SLACK_AND_(first)
+        FF_CALCULATION(first)
+        #Print_Total_Duration(first)
+        #Print_Critical_Path(first)
+        Print_DATA(first)
+        #graph(first)
+    
+        for item in first.activity:
+            first.ACWP[item] = first.Actual_Cost_till_Now[item]
+            first.BCWP[item] = (first.Actual_Complete[item]/100)*first.Planned_Cost[item]
+            if first.ES[item] < REPORT_DATE and first.EF[item]>=REPORT_DATE:
+                first.BCWS[item] = ((REPORT_DATE-first.ES[item])/first.Duration[item])*first.Planned_Cost[item]
+                #first.BCWS_per_week[item] = first.ACWP[item] / ((first.Actual_Complete[item] / 100) * first.Duration[item])
+            else:
+                if first.ES[item] >= REPORT_DATE:
+                    first.BCWS[item] = (1) * first.Planned_Cost[item]
+                else:
+                    first.BCWS[item] = (1) * first.Planned_Cost[item]
+            '''
+            if first.ES[item] >= REPORT_DATE :
+                first.BCWS[item] = (1)*first.Planned_Cost[item]
+            first.BCWS[item] = (1) * first.Planned_Cost[item]
+            
+            if first.EF[item] < REPORT_DATE :
+                first.BCWS[item] = (1)*first.Planned_Cost[item]
+            '''
+            if first.ACWP[item] != 0 :
+                first.CPI[item] = float(first.BCWP[item]/first.ACWP[item])
+                #print(item , float(first.BCWP[item]/first.ACWP[item]))
+            else:
+                first.CPI[item] = -1
+            first.CV[item]  = float(first.BCWP[item] - first.ACWP[item])
+    
+            if first.BCWP[item] != 0:
+                first.SPI[item] = float(first.BCWP[item] / first.BCWS[item])
+            else:
+                first.SPI[item] = -1
+            first.SV[item]  = float(first.BCWP[item] - first.BCWS[item])
+    
+        #print('ACWP',first.ACWP)
+        #print('BCWP',first.BCWP)
+        #print('BCWS',first.BCWS)
+    
+        print("-" * 105)
+        printf("| %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10s |\n", "TASK", "ACWP", "BCWP", "BCWS", "SPI", "SV",
+               "CPI", "CV")
+        print("|============|============|============|============|============|============|============|============|")
+        # print("="*77)
+        for item in first.activity:
+            if first.Actual_Complete[item] != 0:
+                printf("| %10s | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f |\n", item, first.ACWP[item], first.BCWP[item],
+                   first.BCWS[item],
+                   first.SPI[item], first.SV[item], first.CPI[item], first.CV[item])
+            else:
+                printf("| %10s | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f |\n", item, first.ACWP[item],
+                       first.BCWP[item],
+                       0,
+                       0, 0, 0, 0)
+    
+        print("-" * 105)
+        #print('=' * 100)
+    
+        #print_barChart(first)
+        return first
+    def Part_D(prj):
+        print('=' * 100)
+        print(' PART =>  D ')
+        print('=' * 100)
+    
+        initial_ES = {}
+        initial_EF = {}
+        initial_LS = {}
+        initial_LF = {}
+        initial_DURATION = {}
+    
+        for item in prj.activity:
+            initial_ES[item] = prj.ES[item]
+            initial_EF[item] = prj.EF[item]
+            initial_LS[item] = prj.LS[item]
+            initial_LF[item] = prj.LF[item]
+            initial_DURATION[item] = prj.Duration[item]
+    
+        MAX_DURATION_first = int(max_EF(prj))
+        ACWP = []
+        BCWP = []
+        BCWS = []
+    
+        for item in prj.activity:
+            prj.BCWS_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+    
+        for i in range(0, MAX_DURATION_first + 1):
+            bcws = 0
+    
+            for item in prj.activity:
+                if prj.ES[item] < i:
+                    time = min(prj.EF[item], i) - prj.ES[item]
+                    bcws += prj.BCWS_per_week[item] * time
+                    #print(bcws,item,end=' ')
+            #print(' --- > ',bcws,i)
+            BCWS.append(bcws)
+        print('First',prj.Duration)
+        for item in prj.activity:
+            #if prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100 and REPORT_DATE != prj.ES[item]:
+            if prj.Actual_Complete[item] != 0  and REPORT_DATE != prj.ES[item]:
+                temp_duration = min(REPORT_DATE - prj.ES[item], prj.EF[item] - prj.ES[item])
+                #print(prj.Actual_Complete,item)
+                prj.Duration[item] = temp_duration*100 / prj.Actual_Complete[item]
+        print('Second', prj.Duration)
+    
+    
+    
+        '''
+        for item in prj.activity:
+            if prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100:
+                prj.ACWP_per_week[item] = prj.ACWP[item] / ((prj.Actual_Complete[item] / 100) * prj.Duration[item])
+                prj.BCWP_per_week[item] = prj.BCWP[item] / ((prj.Actual_Complete[item] / 100) * prj.Duration[item])
+                prj.BCWS_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+            else:
+                prj.ACWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+                prj.BCWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+                prj.BCWS_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+        '''
+        forwardPass(prj)
+        BackwardPass(prj)
+        Calculate_SLACK_AND_(prj)
+        FF_CALCULATION(prj)
+        #Print_Total_Duration(prj)
+        Print_Critical_Path(prj)
+        #Print_DATA(prj)
+        #graph(prj)
+        #print_barChart(prj)
+        MAX_DURATION = max_EF(prj)
+        print(prj.Duration)
+    
+        print("-" * 132)
+        printf("| %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10s | %10s |\n", "TASK", "DURATION", "ES 0", "EF 0", "LS 0", "LF 0",
+                "ES r", "EF r", "LS r", "LF r")
+        print("|============|============|============|============|============|============|============|============|============|============|")
+        # print("="*77)
+        for item in prj.activity:
+            if prj.Actual_Complete[item] != 0:
+                printf("| %10s | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f |\n", item,prj.Duration[item], initial_ES[item],initial_EF[item],initial_LS[item],initial_LF[item],prj.ES[item],prj.EF[item],prj.LS[item],prj.LF[item])
+            else:
+                printf("| %10s | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f | %10.3f |\n", item,prj.Duration[item],initial_ES[item],initial_EF[item],initial_LS[item],initial_LF[item], prj.ES[item],prj.EF[item],prj.LS[item],prj.LF[item])
+    
+        print("-" * 132)
+        print_barChart(prj)
+        graph(prj)
+        for item in prj.activity:
+            #if prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100:
+            if prj.Actual_Complete[item] != 0 and prj.ACWP_per_week == 0:
+                prj.ACWP_per_week[item] = prj.ACWP[item] / ((prj.Actual_Complete[item] / 100.0) * prj.Duration[item])
+                prj.BCWP_per_week[item] = prj.BCWP[item] / ((prj.Actual_Complete[item] / 100.0) * prj.Duration[item])
+            elif prj.Actual_Complete[item] == 100 and prj.ACWP_per_week == 0:
+                prj.ACWP_per_week[item] = prj.ACWP[item] / prj.Duration[item]
+                prj.BCWP_per_week[item] = prj.BCWP[item] / prj.Duration[item]
+            else:
+                prj.ACWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+                prj.BCWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+        print('Per week ACWP', prj.ACWP_per_week)
+        print('Per week BCWP', prj.BCWP_per_week)
+        print('Per week BCWS', prj.BCWS_per_week)
+        for i in range(0,int(MAX_DURATION)+1):
+            acwp = 0
+            bcwp = 0
+    
+            for item in prj.activity:
+                if prj.ES[item]< i:
+                    time = min(prj.EF[item],i) - prj.ES[item]
+                    acwp += prj.ACWP_per_week[item]*time
+                    bcwp += prj.BCWP_per_week[item]*time
+    
+            ACWP.append(acwp)
+            BCWP.append(bcwp)
+    
+        # STRECG Duration hear
+        print('ACWP', ACWP , max(ACWP))
+        print('BCWP', BCWP , max(BCWP))
+        print('BCWS', BCWS , max(BCWS))
+    
+        list_1 =[]
+        for i in range(int(MAX_DURATION_first)+1):
+            list_1.append(i)
+        list_2 = []
+        for i in range(int(MAX_DURATION)+1):
+            list_2.append(i)
+    
+        B_spline_coeff = make_interp_spline(list_1, BCWS)
+        X_Final = np.linspace(min(list_1), max(list_1), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'b', label='BCWS', color='black')
+    
+        B_spline_coeff = make_interp_spline(list_2[:REPORT_DATE + 1], BCWP[:REPORT_DATE + 1])
+        X_Final = np.linspace(min(list_2[:REPORT_DATE + 1]), max(list_2[:REPORT_DATE + 1]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'r', label='BCWP', color='blue')
+    
+        B_spline_coeff = make_interp_spline(list_2, BCWP)
+        X_Final = np.linspace(min(list_2), max(list_2), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'r', label='BCWP Predected', color='blue', linestyle='--')
+    
+        B_spline_coeff = make_interp_spline(list_2[:REPORT_DATE + 1], ACWP[:REPORT_DATE + 1])
+        X_Final = np.linspace(min(list_2[:REPORT_DATE + 1]), max(list_2[:REPORT_DATE + 1]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'g', label='ACWP', color='red')
+    
+        B_spline_coeff = make_interp_spline(list_2, ACWP)
+        X_Final = np.linspace(min(list_2[REPORT_DATE:]), max(list_2[REPORT_DATE:]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'g', label='ACWP Predected', color='red', linestyle='--')
+    
+        #plt.plot(list_1, BCWS, 'b', label='BCWS', color='black')
+        #plt.plot(list_2[:REPORT_DATE+1], BCWP[:REPORT_DATE+1], 'r', label='BCWP', color='blue')
+        #plt.plot(list_2[:REPORT_DATE+1], ACWP[:REPORT_DATE+1], 'g', label='ACWP', color='red')
+    
+        ####plt.plot(list_1[REPORT_DATE:], BCWS[REPORT_DATE:], 'b', label='BCWS Predected',color='black',linestyle='--')
+    
+        #plt.plot(list_2[REPORT_DATE:], BCWP[REPORT_DATE:], 'r', label='BCWP Predected',color='blue',linestyle='--')
+        #plt.plot(list_2[REPORT_DATE:], ACWP[REPORT_DATE:], 'g', label='ACWP Predected',color='red',linestyle='--')
+    
+        ###plt.ayhline(x=REPORT_DATE, color='red', linestyle='--')
+        ###plt.ayhline(x=max(list_1), color='b', linestyle='--')
+        ###plt.ayhline(x=max(list_2), color='b', linestyle='--')
+        plt.plot(list_1,[max(BCWS)]*len(list_1),color='b')
+        tp = []
+        for i in range( int(max(BCWS))):
+            tp.append(i)
+        plt.plot([max(list_1)]*int(max(BCWS)),tp,color='b')
+        tp = []
+        for i in range( int(max(ACWP))):
+            tp.append(i)
+        plt.plot([max(list_2)]*int(max(ACWP)),tp,color='black')
+        tp = []
+        for i in range(int(max(ACWP))):
+            tp.append(i)
+        plt.plot([REPORT_DATE] * int(max(ACWP)), tp, color='red')
+        plt.axhline(y=max(ACWP), color='b', linestyle=':')
+        plt.axhline(y=max(BCWS), color='b', linestyle=':')
+        plt.ylim(0, max(max(ACWP), max(BCWP)) + max(max(ACWP),max(BCWP))*0.1)
+        plt.xlim(0, max(max(list_1),max(list_2))+ max(max(list_1),max(list_2))*0.1)
+        plt.yticks([0,max(ACWP),max(BCWS),max(BCWP)])
+        plt.xticks([0,REPORT_DATE,max(list_1),max(list_2)])
+        plt.legend()
+        #plt.show()
+        display(plt, target="graph-area3", append=False)
+        plt.close()
+    
+    def Part_C(prj):
+        print('=' * 100)
+        print(' PART =>  C ')
+        print('=' * 100)
+    
+        ACWP = []
+        BCWP = []
+        BCWS = []
+    
+        CPI = 1
+        SPI = 1
+        total_ACWP = 0
+        total_BCWP = 0
+        total_BCWS = 0
+        total = 0
+        #print(prj.Actual_Complete)
+        for item in prj.activity:
+            if prj.Actual_Complete[item] != 0:
+                total += 1
+                total_BCWP += prj.BCWP[item]
+                total_ACWP += prj.ACWP[item]
+                total_BCWS += prj.BCWS[item]
+        CPI = total_BCWP / total_ACWP
+        SPI = total_BCWP / total_BCWS
+    
+        NEW_DURATION = max_EF(prj)/SPI
+        COST = 0
+    
+        for item in prj.activity:
+            COST += prj.Planned_Cost[item]
+    
+        NEW_COST = COST / CPI
+        #print( COST,CPI)
+        print(' Estimate at completion: ',NEW_COST)
+        #print(max_EF(prj), int(max_EF(prj)),SPI)
+        print(' Estimated project duration: ',NEW_DURATION)
+    
+        for i in range(0, int(max_EF(prj)) + 1):
+            bcws = 0
+    
+            for item in prj.activity:
+                if prj.ES[item] < i:
+                    time = min(prj.EF[item], i) - prj.ES[item]
+                    bcws += prj.BCWS_per_week[item] * time
+                    #print(bcws, item, end=' ')
+            #print(' --- > ', bcws, i)
+            BCWS.append(bcws)
+        for i in range(0, REPORT_DATE + 1):
+            acwp = 0
+            bcwp = 0
+    
+            for item in prj.activity:
+                if prj.ES[item] < i:
+                    if  prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100:
+                        time = i - prj.ES[item]
+                        acwp += prj.ACWP_per_week[item] * time
+                        bcwp += prj.BCWP_per_week[item] * time
+                    else:
+                        time = min(prj.EF[item], i) - prj.ES[item]
+                        acwp += prj.ACWP_per_week[item] * time
+                        bcwp += prj.BCWP_per_week[item] * time
+    
+            ACWP.append(acwp)
+            BCWP.append(bcwp)
+    
+        # STRECG Duration hear
+        ACWP.append(max(ACWP))
+        BCWP.append(max(BCWP))
+    
+        print('ACWP', ACWP, max(ACWP))
+        print('BCWP', BCWP, max(BCWP))
+        print('BCWS', BCWS, max(BCWS))
+        slop_1 = (NEW_COST-max(ACWP))/(NEW_DURATION - REPORT_DATE)
+        slop_2 = (max(BCWS)-max(BCWP))/(NEW_DURATION - REPORT_DATE)
+        for i in range(REPORT_DATE,int(NEW_DURATION)):
+            ACWP.append(ACWP[-1]+slop_1)
+            BCWP.append(BCWP[-1]+slop_2)
+            ''' =int(len(BCWP)*SPI)
+            print(t)
+            if t < len(BCWS):
+                BCWP.append(BCWS[t])
+            else:
+                BCWP.append(max(BCWS))
+            '''
+        list_1 = []
+        for i in range(int(max_EF(prj)) + 1):
+            list_1.append(i)
+        list_2 = []
+        for i in range(int(NEW_DURATION) + 1):
+            list_2.append(i)
+        list_2.append(NEW_DURATION)
+        '''
+        plt.plot(list_1, BCWS, 'b', label='BCWS', color='black')
+        plt.plot(list_2, BCWP, 'r', label='BCWP', color='blue')
+        plt.plot(list_2, ACWP, 'g', label='ACWP', color='red')
+        # plt.ayhline(x=REPORT_DATE, color='red', linestyle='--')
+        # plt.ayhline(x=max(list_1), color='b', linestyle='--')
+        # plt.ayhline(x=max(list_2), color='b', linestyle='--')
+        plt.plot(list_1, [max(BCWS)] * len(list_1), color='b')
+        tp = []
+        for i in range(int(max(BCWS))):
+            tp.append(i)
+        plt.plot([max(list_1)] * int(max(BCWS)), tp, color='b')
+        tp = []
+        for i in range(int(max(ACWP))):
+            tp.append(i)
+        plt.plot([max(list_2)] * int(max(ACWP)), tp, color='black')
+        plt.axhline(y=max(ACWP), color='b', linestyle='--')
+        plt.axhline(y=max(BCWS), color='b', linestyle='--')
+        plt.ylim(0, max(max(ACWP), max(BCWP)) + max(max(ACWP), max(BCWP)) * 0.1)
+        plt.xlim(0, max(max(list_1), max(list_2)) + max(max(list_1), max(list_2)) * 0.1)
+        plt.yticks([0, max(ACWP), max(BCWS), max(BCWP)])
+        plt.xticks([0, max(list_1), max(list_2)])
+        plt.legend()
+        #plt.show()
+        display(plt, target="graph-area4", append=False)
+        plt.close()
+        '''
+    
+        B_spline_coeff = make_interp_spline(list_1, BCWS)
+        X_Final = np.linspace(min(list_1), max(list_1), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'b', label='BCWS', color='black')
+    
+        B_spline_coeff = make_interp_spline(list_2[:REPORT_DATE + 1], BCWP[:REPORT_DATE + 1])
+        X_Final = np.linspace(min(list_2[:REPORT_DATE + 1]), max(list_2[:REPORT_DATE + 1]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'r', label='BCWP', color='blue')
+    
+        B_spline_coeff = make_interp_spline(list_2, BCWP)
+        X_Final = np.linspace(min(list_2), max(list_2), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'r', label='BCWP Predected', color='blue',linestyle='--')
+    
+        B_spline_coeff = make_interp_spline(list_2[:REPORT_DATE + 1], ACWP[:REPORT_DATE + 1])
+        X_Final = np.linspace(min(list_2[:REPORT_DATE + 1]), max(list_2[:REPORT_DATE + 1]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'g', label='ACWP', color='red')
+    
+        B_spline_coeff = make_interp_spline(list_2, ACWP)
+        X_Final = np.linspace(min(list_2[REPORT_DATE:]), max(list_2[REPORT_DATE:]), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'g', label='ACWP Predected', color='red',linestyle='--')
+    
+        #plt.plot(list_1, BCWS, 'b', label='BCWS', color='black')
+        #plt.plot(list_2[:REPORT_DATE + 1], BCWP[:REPORT_DATE + 1], 'r', label='BCWP', color='blue')
+        #plt.plot(list_2[:REPORT_DATE + 1], ACWP[:REPORT_DATE + 1], 'g', label='ACWP', color='red')
+    
+        #plt.plot(list_1[REPORT_DATE:], BCWS[REPORT_DATE:], 'b', label='BCWS Predected', color='black', linestyle='--')
+        #plt.plot(list_2[REPORT_DATE:], BCWP[REPORT_DATE:], 'r', label='BCWP Predected', color='blue', linestyle='--')
+        #plt.plot(list_2[REPORT_DATE:], ACWP[REPORT_DATE:], 'g', label='ACWP Predected', color='red', linestyle='--')
+        # plt.ayhline(x=REPORT_DATE, color='red', linestyle='--')
+        # plt.ayhline(x=max(list_1), color='b', linestyle='--')
+        # plt.ayhline(x=max(list_2), color='b', linestyle='--')
+        plt.plot(list_1, [max(BCWS)] * len(list_1), color='b')
+        tp = []
+        for i in range(int(max(BCWS))):
+            tp.append(i)
+        plt.plot([max(list_1)] * int(max(BCWS)), tp, color='b')
+        tp = []
+        for i in range(int(max(ACWP))):
+            tp.append(i)
+        plt.plot([max(list_2)] * int(max(ACWP)), tp, color='black')
+        tp = []
+        for i in range(int(max(ACWP))):
+            tp.append(i)
+        plt.plot([REPORT_DATE] * int(max(ACWP)), tp, color='red')
+        plt.axhline(y=max(ACWP), color='b', linestyle=':')
+        plt.axhline(y=max(BCWS), color='b', linestyle=':')
+        plt.ylim(0, max(max(ACWP), max(BCWP)) + max(max(ACWP), max(BCWP)) * 0.1)
+        plt.xlim(0, max(max(list_1), max(list_2)) + max(max(list_1), max(list_2)) * 0.1)
+        plt.yticks([0, max(ACWP), max(BCWS), max(BCWP)])
+        plt.xticks([0, REPORT_DATE, max(list_1), max(list_2)])
+        plt.legend()
+        plt.show()
+        display(plt, target="graph-area4", append=False)
+        plt.close()
+    
+    
+    
+    
+    
+    
+    def Part_B(prj):
+        #MAX_DURATION_first = int(max_EF(prj))
+    
+        print('=' * 100)
+        print(' PART =>  B ')
+        print('=' * 100)
+    
+        ACWP = []
+        BCWP = []
+        BCWS = []
+        CPI = 1
+        SPI = 1
+        total_ACWP=0
+        total_BCWP = 0
+        total_BCWS = 0
+        total = 0
+        for item in prj.activity:
+            if prj.Actual_Complete != 0:
+                total += 1
+                total_BCWP += prj.BCWP[item]
+                total_ACWP += prj.ACWP[item]
+                total_BCWS += prj.BCWS[item]
+        CPI = total_BCWP/total_ACWP
+        SPI = total_BCWP/total_BCWS
+        if CPI > 1:
+            print('The project is under budget')
+        if CPI < 1:
+            print('The project is over budget')
+        if CPI == 1:
+            print('The project is as per estimated  budget')
+    
+        if SPI > 1 :
+            print('The project is ahead of  schedule')
+        if SPI < 1 :
+            print('The project is behind of  schedule')
+        if SPI == 1 :
+            print('The project is as of  schedule')
+    
+        for item in prj.activity:
+            prj.BCWS_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+    
+        for i in range(0, int(max_EF(prj)) + 1):
+            bcws = 0
+    
+            for item in prj.activity:
+                if prj.ES[item] < i:
+                    time = min(prj.EF[item], i) - prj.ES[item]
+                    bcws += prj.BCWS_per_week[item] * time
+                    #print(bcws, item, end=' ')
+            #print(' --- > ', bcws, i)
+            BCWS.append(bcws)
+    
+        for item in prj.activity:
+            #if prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100 and REPORT_DATE-prj.ES[item]!=0:
+            if prj.Actual_Complete[item] != 0  and REPORT_DATE - prj.ES[item] != 0:
+            #if prj.Actual_Complete[item] != 0 :
+                prj.ACWP_per_week[item] = prj.ACWP[item] / (min(REPORT_DATE,prj.EF[item])-prj.ES[item])
+                prj.BCWP_per_week[item] = prj.BCWP[item] / (min(REPORT_DATE,prj.EF[item])-prj.ES[item])
+            elif prj.Actual_Complete[item] == 100 :
+                #prj.ACWP_per_week[item] = prj.ACWP[item] / prj.Duration[item]
+                #prj.BCWP_per_week[item] = prj.BCWP[item] / prj.Duration[item]
+                prj.ACWP_per_week[item] = prj.ACWP[item] / (min(REPORT_DATE,prj.EF[item]) - prj.ES[item])
+                prj.BCWP_per_week[item] = prj.BCWP[item] / (min(REPORT_DATE,prj.EF[item]) - prj.ES[item])
+            else:
+                prj.ACWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+                prj.BCWP_per_week[item] = prj.Planned_Cost[item] / prj.Duration[item]
+        #print('Per week ACWP', prj.ACWP_per_week)
+        #print('Per week BCWP', prj.BCWP_per_week)
+        #print('Per week BCWS', prj.BCWS_per_week)
+        for i in range(0, REPORT_DATE + 1):
+            acwp = 0
+            bcwp = 0
+    
+            for item in prj.activity:
+                if prj.ES[item] < i:
+                    if  prj.Actual_Complete[item] != 0 and prj.Actual_Complete[item] != 100:
+                        time = i - prj.ES[item]
+                        acwp += prj.ACWP_per_week[item] * time
+                        bcwp += prj.BCWP_per_week[item] * time
+                    else:
+                        time = min(prj.EF[item], i) - prj.ES[item]
+                        acwp += prj.ACWP_per_week[item] * time
+                        bcwp += prj.BCWP_per_week[item] * time
+    
+            ACWP.append(acwp)
+            BCWP.append(bcwp)
+    
+        print("-" * 99)
+        printf("| %10s | %10s | %10s | %10s | %10s | %10s |\n", "TASK", "Planned Duration", "Actual Duration till now", "BCWS/WEEK","ACWP/WEEK","BCWP/WEEK" )
+        print("|============|==================|==========================|============|============|============|")
+        # print("="*77)
+        for item in prj.activity:
+            if prj.Actual_Complete[item] != 0:
+                printf("| %10s | %16.3f | %24.3f | %10.3f | %10.3f | %10.3f |\n", item, prj.Duration[item],
+                       min(prj.EF[item],REPORT_DATE)-prj.ES[item],
+                       prj.BCWS_per_week[item],prj.ACWP_per_week[item],
+                       prj.BCWP_per_week[item])
+            else:
+                printf("| %10s | %16.3f | %24.3f | %10.3f | %10.3f | %10.3f |\n", item, prj.Duration[item],
+                       0,
+                       prj.BCWS_per_week[item],
+                       0, 0)
+        print("-" * 99)
+    
+        # STRECG Duration hear
+        print('ACWP', ACWP, max(ACWP))
+        print('BCWP', BCWP, max(BCWP))
+        print('BCWS', BCWS, max(BCWS))
+    
+    
+    
+        list_1 = []
+        for i in range( int(max_EF(prj))+ 1):
+            list_1.append(i)
+        list_2 = []
+        for i in range(REPORT_DATE + 1):
+            list_2.append(i)
+        #B_spline_coeff = make_interp_spline(list_1, BCWS)
+        #X_Final = np.linspace(min(list_1), max(list_1), 5000)
+        #Y_Final = B_spline_coeff(X_Final)
+        #plt.plot(X_Final, Y_Final, color="orange")
+    
+        # B_spline_coeff = make_interp_spline(list_1, BCWS)
+        # X_Final = np.linspace(min(list_1), max(list_1), 5000)
+        # Y_Final = B_spline_coeff(X_Final)
+        B_spline_coeff = make_interp_spline(list_1, BCWS)
+        X_Final = np.linspace(min(list_1), max(list_1), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'b', label='BCWS', color='black')
+    
+        B_spline_coeff = make_interp_spline(list_2, BCWP)
+        X_Final = np.linspace(min(list_2), max(list_2), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'r', label='BCWP', color='blue')
+    
+        B_spline_coeff = make_interp_spline(list_2, ACWP)
+        X_Final = np.linspace(min(list_2), max(list_2), 5000)
+        Y_Final = B_spline_coeff(X_Final)
+        plt.plot(X_Final, Y_Final, 'g', label='ACWP', color='red')
+    
+        #plt.plot(list_1, BCWS, 'b', label='BCWS', color='black')
+        #plt.plot(list_2, BCWP, 'r', label='BCWP', color='blue')
+        #plt.plot(list_2, ACWP, 'g', label='ACWP', color='red')
+    
+        plt.plot(list_1, [max(BCWS)] * len(list_1), color='b')
+        tp = []
+        for i in range(int(max(BCWS))):
+            tp.append(i)
+        plt.plot([max(list_1)] * int(max(BCWS)), tp, color='b')
+        tp = []
+        for i in range(int(max(ACWP))):
+            tp.append(i)
+        plt.plot([max(list_2)] * int(max(ACWP)), tp, color='black')
+        plt.axhline(y=max(ACWP), color='b', linestyle=':')
+        plt.axhline(y=max(BCWS), color='b', linestyle=':')
+        tp = []
+        for i in range(int(max(BCWS))):
+            tp.append(i)
+        plt.plot([REPORT_DATE] * int(max(BCWS)), tp, color='red')
+    
+        plt.ylim(0, max(max(ACWP), max(BCWP),max(BCWS)) + max(max(ACWP), max(BCWP),max(BCWS)) * 0.1)
+        plt.xlim(0, max(max(list_1), max(list_2)) + max(max(list_1), max(list_2)) * 0.1)
+        plt.yticks([0, max(ACWP), max(BCWS), max(BCWP)])
+        plt.xticks([0, max(list_1), max(list_2)])
+        plt.legend()
+        #plt.show()
+        display(plt, target="graph-area5", append=False)
+        plt.close()
+        print_barChart(prj)
+    
+    
+    if __name__ == '__main__':
+    
+        '''
+        loading color of application
+        '''
+        #REPORT_DATE = int(input('Enter The Report Date := '))
+        #pathData = read_file("Assignment_3_updated.csv")
+        #pathData = read_file("Lecture.csv")
+        print(REPORT_DATE)
+        partA = Part_A()
+        Part_B(partA)
+        Part_C(partA)
+        partD = Part_D(partA)
+        Print_DATA(partA)
+        
+    
+</py-script>
+
+
+  
+   <div id="graph-area1"></div><br>
+   <div id="graph-area2"></div><br>
+   <div id="graph-area3"></div><br>
+   <div id="graph-area4"></div><br>
+   <div id="graph-area5"></div><br>
+   
+
+ 
+
+  </body>
+</html>
