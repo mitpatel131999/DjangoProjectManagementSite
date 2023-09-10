@@ -129,4 +129,4 @@ def edit_project(request):
     queryset = UserData.objects.all()
     print(queryset)
 
-    return render(request,'edit_project.html',data)
+    return render(request,'edit_project.html',queryset)
