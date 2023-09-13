@@ -1,0 +1,214 @@
+
+<!--https://github.com/frappe/gantt/blob/master/dist/frappe-gantt.js-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Simple Gantt</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			background: #ccc;
+		}
+		.container {
+			width: 80%;
+			margin: 0 auto;
+		}
+		/* custom class */
+		.gantt .bar-milestone .bar {
+			fill: tomato;
+		}
+		.heading {
+			text-align: center;
+		}
+	</style>
+	<link rel="stylesheet" href="../static/gantt/dist/frappe-gantt.css" />
+	<script src="../static/gantt/dist/frappe-gantt.js"></script>
+</head>
+<body>
+    <p>{{TASK}}</p>
+	<div class="container">
+		<h2 class="heading">Interactive Gantt Chart entirely made in SVG!</h2>
+		<div class="gantt-target-planing"></div>
+	</div>
+
+
+
+
+    <script type="text/javascript">
+        function addOpt(e) {
+          var o=document.createElement("option");
+          //o.value= -e.options.length;
+          o.text = "Test " + e.options.length;
+          o.selected=true;
+          e.add(o,null);
+        }
+
+        var options = document.getElementById('depedency').selectedOptions;
+        var values = Array.from(options).map(({ value }) => value);
+        console.log(values); 
+
+        function readFormData() {
+            var multiSelect = document.getElementById("depedency");
+            var selectedOptions = [];
+
+            for (var i = 0; i < multiSelect.options.length; i++) {
+                if (multiSelect.options[i].selected) {
+                selectedOptions.push(multiSelect.options[i].value);
+                }
+            }
+
+            // Display or process the selected values as needed
+            //alert("Selected Options: " + selectedOptions.join(", "));
+            document.getElementById('multi-depedency').value = selectedOptions.join(",");
+            return false;
+           }
+      </script>
+
+
+
+     <!-- ADD Activity Form -->
+	<form id="Insert" name="Insert" action="{{id}}"  method="POST" >
+        {% csrf_token %}
+		<p>Please Insert the Task</p>
+		<input type="text" id="name" name="name"placeholder="Enter Activity Name">
+		<input type="date" id="start" name="start" placeholder="Expacted Start Date">
+		<input type="date" id="end" name="end" placeholder="Expacted End Date">
+        <input type="test" id="multi-depedency" name="multi-depedency" hidden>
+        
+		<select name="depedency" id="depedency" size="5" multiple="multiple" aria-placeholder="Enter Depedency">
+		    {% for x in TASK%}
+            <option value="{{x.id}}">{{x.name}}</option>
+            {% endfor%}
+            
+		</select>
+		<input type="submit" value="Submit" onclick="readFormData()">
+	</form>
+
+
+     <!-- Delete Activity Form -->
+	
+	
+	<form id="Delete" action="{{id}}"  method="POST">
+        {% csrf_token %}
+		<p>Delete Task</p>
+		<select name="activity" id="activity" aria-placeholder="Select Activity">
+            {% for x in TASK%}
+            <option value="{{x.id}}">{{x.name}}</option>
+            {% endfor%}
+		  </select>
+		<input type="submit" value="Submit">
+	</form>
+     <br>
+     <br>
+
+
+      <!-- Changing Time frame -->
+	
+    <button name="Week" onclick="gantt_chart_planing.change_view_mode('Quarter Day')"> Quarter Day </button>
+    <button name="Week" onclick="gantt_chart_planing.change_view_mode('Half Day')"> Half Day </button>
+    <button name="Week" onclick="gantt_chart_planing.change_view_mode('Day')"> Day </button>
+    <button name="Week" onclick="gantt_chart_planing.change_view_mode('Week')"> Week </button>
+    <button name="Week" onclick="gantt_chart_planing.change_view_mode('Month')"> Month </button>
+
+     <!-- Save Data  TO server -->
+     <br>
+     <br>
+     <button name="save" action="{{id}}" onclick=""> Save </button>
+     
+    <!--
+        var tasks = [
+			{
+				start: '2018-10-01',
+				end: '2018-10-08',
+				name: 'Redesign website',
+				id: "0",
+				progress: 20
+			},
+			{
+				start: '2018-10-01',
+				end: '2018-10-08',
+				name: 'Redesign website',
+				id: "1",
+				progress: 20
+			},
+			{
+				start: '2018-10-03',
+				end: '2018-10-06',
+				name: 'Write new content',
+				id: "1",
+				progress: 5,
+				dependencies: '0,10'
+			},
+			{
+				start: '2018-10-04',
+				end: '2018-10-08',
+				name: 'Apply new styles',
+				id: "2",
+				progress: 10,
+				dependencies: '1'
+			},
+			{
+				start: '2018-10-08',
+				end: '2018-10-09',
+				name: 'Review',
+				id: "Task 3",
+				progress: 5,
+				dependencies: '2,1'
+			},
+			{
+				start: '2018-10-08',
+				end: '2018-10-10',
+				name: 'Deploy',
+				id: "Task 4",
+				progress: 0,
+				dependencies: '2'
+			},
+			{
+				start: '2018-10-11',
+				end: '2018-10-11',
+				name: 'Go Live!',
+				id: "Task 5",
+				progress: 0,
+				dependencies: 'Task 4',
+				custom_class: 'bar-milestone'
+			}
+			
+		]
+    -->
+	<script>
+
+        var tasks= {{ TASK|safe }}
+        var gantt_chart_planing = new Gantt(".gantt-target-planing", tasks, {
+			header_height: 50,
+			column_width: 30,
+			step: 24,
+			view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+			bar_height: 20,
+			bar_corner_radius: 3,
+			arrow_curve: 5,
+			padding: 18,
+			view_mode: 'Day',
+			date_format: 'YYYY-MM-DD',
+			language: 'en', // or 'es', 'it', 'ru', 'ptBr', 'fr', 'tr', 'zh', 'de', 'hu'
+			custom_popup_html: null,
+			on_click: task => {
+				console.log(task);
+			},
+			on_date_change: (task, start, end) => {
+				console.log(task, start, end);
+			},
+			on_progress_change: (task, progress) => {
+				console.log(task, progress);
+			},
+			on_view_change: (mode) => {
+				console.log(mode);
+			},
+			view_mode: 'Month',
+			language: 'en'
+		});
+		gantt_chart_planing.change_view_mode('Week')
+		console.log(gantt_chart__planing);
+	</script>
+</body>
+</html>

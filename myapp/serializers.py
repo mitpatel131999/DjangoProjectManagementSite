@@ -5,12 +5,12 @@ from myapp.models import Project, UserData, adminUser, ProjectActivity,ProjectDe
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = UserData
-        fields = ('username', 'emailId', 'password','password2','name','address')
+        fields = ('username', 'emailId', 'password','password2','first_name','last_name','address')
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Project
-        fields = ('username', 'projectDescription','projectSchedule')
+        fields = ('username','projectName', 'projectDescription')
 
 class ProjectActivitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

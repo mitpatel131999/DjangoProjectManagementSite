@@ -1,0 +1,173 @@
+
+<!--https://github.com/frappe/gantt/blob/master/dist/frappe-gantt.js-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Simple Gantt</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			background: #ccc;
+		}
+		.container {
+			width: 80%;
+			margin: 0 auto;
+		}
+		/* custom class */
+		.gantt .bar-milestone .bar {
+			fill: tomato;
+		}
+		.heading {
+			text-align: center;
+		}
+	</style>
+	<link rel="stylesheet" href="dist/frappe-gantt.css" />
+	<script src="dist/frappe-gantt.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h2 class="heading">Interactive Gantt Chart entirely made in SVG!</h2>
+		<div class="gantt-target-planing"></div>
+	</div>
+
+	<form onsubmit="guardarNumeros()">
+		<p>Please Insert the Task</p>
+		<input type="text" id="name" placeholder="Enter Activity Name">
+		<input type="date" id="start" placeholder="Expacted Start Date">
+		<input type="date" id="end" placeholder="Expacted End Date">
+		<select name="cars" id="cars" multiple aria-placeholder="Enter Depedency">
+			<script> for(let i=0;)</script>
+			<option value="volvo">Volvo</option>
+			<option value="saab">Saab</option>
+			<option value="opel">Opel</option>
+			<option value="audi">Audi</option>
+		  </select>
+		<input type="submit" value="Submit">
+	</form>
+
+	
+	<form onsubmit="guardarNumeros()">
+		<p>Delete Task</p>
+		<input type="text" id="name" placeholder="Enter Activity Name">
+		<input type="date" id="start" placeholder="Expacted Start Date">
+		<input type="date" id="end" placeholder="Expacted End Date">
+		<select name="cars" id="cars" multiple aria-placeholder="Enter Depedency">
+			<script> for(let i=0;)</script>
+			<option value="volvo">Volvo</option>
+			<option value="saab">Saab</option>
+			<option value="opel">Opel</option>
+			<option value="audi">Audi</option>
+		  </select>
+		<input type="submit" value="Submit">
+	</form>
+
+	<script>
+		var tasks = [
+			{
+				start: '2018-10-01',
+				end: '2018-10-08',
+				name: 'Redesign website',
+				id: "0",
+				progress: 20
+			},
+			{
+				start: '2018-10-01',
+				end: '2018-10-08',
+				name: 'Redesign website',
+				id: "1",
+				progress: 20
+			},
+			{
+				start: '2018-10-03',
+				end: '2018-10-06',
+				name: 'Write new content',
+				id: "1",
+				progress: 5,
+				dependencies: '0,10'
+			},
+			{
+				start: '2018-10-04',
+				end: '2018-10-08',
+				name: 'Apply new styles',
+				id: "2",
+				progress: 10,
+				dependencies: '1'
+			},
+			{
+				start: '2018-10-08',
+				end: '2018-10-09',
+				name: 'Review',
+				id: "Task 3",
+				progress: 5,
+				dependencies: '2,1'
+			},
+			{
+				start: '2018-10-08',
+				end: '2018-10-10',
+				name: 'Deploy',
+				id: "Task 4",
+				progress: 0,
+				dependencies: '2'
+			},
+			{
+				start: '2018-10-11',
+				end: '2018-10-11',
+				name: 'Go Live!',
+				id: "Task 5",
+				progress: 0,
+				dependencies: 'Task 4',
+				custom_class: 'bar-milestone'
+			}
+			
+		]
+		var gantt_chart_planing = new Gantt(".gantt-target-planing", tasks, {
+			header_height: 50,
+			column_width: 30,
+			step: 24,
+			view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+			bar_height: 20,
+			bar_corner_radius: 3,
+			arrow_curve: 5,
+			padding: 18,
+			view_mode: 'Day',
+			date_format: 'YYYY-MM-DD',
+			language: 'en', // or 'es', 'it', 'ru', 'ptBr', 'fr', 'tr', 'zh', 'de', 'hu'
+			custom_popup_html: null,
+			on_click: task => {
+				console.log(task);
+			},
+			on_date_change: (task, start, end) => {
+				console.log(task, start, end);
+			},
+			on_progress_change: (task, progress) => {
+				console.log(task, progress);
+			},
+			on_view_change: (mode) => {
+				console.log(mode);
+			},
+			view_mode: 'Month',
+			language: 'en'
+		});
+		var gantt_chart_actual = new Gantt(".gantt-target-actual", tasks, {
+			on_click: task => {
+
+				console.log(task);
+			},
+			on_date_change: (task, start, end) => {
+				console.log(task, start, end);
+			},
+			on_progress_change: (task, progress) => {
+				console.log(task, progress);
+			},
+			on_view_change: (mode) => {
+				console.log(mode);
+			},
+			view_mode: 'Month',
+			language: 'en'
+		});
+		gantt_chart_planing.change_view_mode('Week')
+		console.log(gantt_chart);
+	</script>
+</body>
+</html>

@@ -19,14 +19,97 @@ To run database
 $ python manage.py dbshell
 
 #################################
+'''
 
-TODO:
+    TODO:
+
+    login register logout is Done
+
+    change password forger password is left
+
+    add session authencation for api in order to minimze data show
+      --> session problem is resolved 
+      --> focus on updating user input data in order to manuplate user data
+
+    develop basic front end and storing data
+      --> login , register and logout basic design done
+
+    develop backend data migration data inorder to save backup from sqlit3
+      --> need to flushout the data and then migrate to original data base
 
 
-# add session authencation for api in order to minimze data show
+    ToDays Task:
 
-# develop basic front end and storing data
+    --> create Home Page for User Profile
+    --> create User Profile Page to creat update or delete personal data
+    --> create Project Creation page and updation page deletation page 
+    --> create project View Page (demo_project) 
 
-# develop backend data migration data inorder to save backup from sqlit3
+
+    https://madewithflutter.net/best-flutter-packages-to-create-charts-and-graphs/
+
+    "https://gojs.net/latest/samples/index.html"
+    https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/gantt.html
+
+    https://gojs.net/latest/samples/orgChartEditor.html  ## for Employees order
+
+    https://gojs.net/latest/samples/gantt.html           ## for  Activity
+
+    https://gojs.net/latest/samples/PERT.html            ## for graph
+
+    https://gojs.net/latest/samples/pieCharts.html       ## for budhet percentage , Actual , Planning , tsak complited schedule, Acutal
+
+    https://gojs.net/latest/samples/barCharts.html       ## to compair Actual Cost to budget cost , ACtual Time to Schedule time
+
+    https://gojs.net/latest/samples/dynamicPieChart.html 
+    
+    ##  need to find application to find actuall complition of activity in percentage 1 to 100
+
+    
+    <-------------- Basic Design of Application ------------------>
+    
+    
+    use for front end data application
+
+    
+    ## Basic Dash Board
+
+          Main Dash Board
+
+          Planned G-Chart
+
+          ACtual G-Chart
+
+          Excel View of Activity
+
+          Cost Bar Chart
+
+          Schedule Bar chart
+
+          Pi Chart Complitatio of Project
+
+          Cost Predection Chart
+
+          2 D Chart for Cost Vs Schedule ( represent Behind Schidule , On Schedule , Over Coast ,  Under Coast)
+
+          Report Generation
+
+          Excel Export
+
+    ## Employes Chart
+
+        Hirarkry Diagram
+
+        Excel View
+
+    ## Invite Team Members
+       
+    ## Activities Desceription and their details Specifically Cost related
+       Report Generation Based Cost, Planning + (Actual, Enter data Manually of Invoice) 
+    
+    ## Chennel For Regular Updates
+       
+       Notes add by Admin + Team Member
 
 
+'''

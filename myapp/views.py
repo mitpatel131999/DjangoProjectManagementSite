@@ -1,30 +1,53 @@
 from django.shortcuts import render , redirect
 from django.http import HttpResponse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
 from django.contrib.auth.models import AnonymousUser 
-from django.contrib  import messages
+from django.contrib  import messages , auth
 from . import models
 
 from myapp.models import Project, UserData, ProjectActivity, ProjectDepedency
 from myapp.serializers import UserSerializer,ProjectSerializer,ProjectActivitySerializer,ProjectDepedencySerializer
 
 from rest_framework import viewsets
+from rest_framework import permissions
+
+from rest_framework.fields import CurrentUserDefault
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Project.objects.all()
+    
 
 class ProjectActivityViewSet(viewsets.ModelViewSet):
     queryset = ProjectActivity.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectActivitySerializer
 
 class ProjectDepedencyViewSet(viewsets.ModelViewSet):
     queryset = ProjectDepedency.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectDepedencySerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = UserData.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
+
+'''
+Experiment
+'''
+        
+def demo_user(request,id):
+    if request.user.is_authenticated:
+        queryset = UserData.objects.filter(id=id)
+        print(queryset.values())
+        redirect('api/user')
+    messages.info(request,'Kindly login')
+    redirect('login')
+
+    
+
 '''
 sample data for testing 
 '''
@@ -91,15 +114,124 @@ data={     'project_id':1,
         ],
         }
 # Create your views here.
+
 def index(request):
-    print('mit')
     context={ 'name':'MIT',
               'College':'IIT',
               'CGPA': 9.80,
             }
     return render(request,'index.html', context)
-
+'''
+user Auth
+'''
 def register(request):
+    
+    if request.user.is_authenticated:
+        messages.info(request,'Already login')
+        redirect('login')
+    if request.method == 'POST':
+        user = models.UserData()
+        user.username = request.POST['username']
+        user.password = request.POST['password']
+        user.password2 = request.POST['Re-password']
+        user.emailId  = request.POST['email']
+        user.first_name = request.POST['firstname']
+        user.last_name = request.POST['lastname']
+        user.address = request.POST['address']
+        if user.password == user.password2:
+            print(11)
+            if User.objects.filter(username=user.username).exists():
+                print(111)
+                messages.info(request,'Username already used')
+                return redirect('register')
+            else:
+                print(2)
+                user_auth=User.objects.create_user(username=request.POST['username'],
+                                                   password=request.POST['password'],
+                                                   email=request.POST['email'])
+                #user_auth.set_password(request.POST['password'])
+                #user_auth.set_unusable_password()
+                ans = user_auth.save()
+                print(ans,'Mit important')
+                user.save()
+                render(request,'user_auth/login.html')
+        else:
+            messages.info(request,'Password did not matched')
+            return redirect('register')
+    return render(request,'user_auth/register.html')
+
+def login(request):
+    if request.user.is_authenticated:
+        messages.info(request,'Already login')
+        redirect('logout')
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = auth.authenticate(username=username,password=password)
+        queryset = User.objects.filter(username=username).values()
+        print(queryset)
+        if user is not None:
+            print('login success')
+            auth.login(request,user)
+            redirect('register')
+        else:
+            messages.info(request,'username or password is incorrect')
+            redirect('login')
+        '''
+        queryset = UserData.objects.filter(username=user.username).values()
+        if len(queryset) < 0:
+            messages.info(request,'Username not exist')
+            return redirect('login')
+        if len(queryset) > 1:
+            messages.info(request,'Username user multiple time')
+            return redirect('login')
+        if len(queryset) == 1:
+            user.password2=queryset[0]['password']
+            if user.password == user.password2:
+                messages.info(request,'Login Successfully')
+
+                return redirect('home')
+            else:
+                messages.info(request,'Login Successfully')
+                return redirect('login')
+        '''
+
+        
+    return render(request,'user_auth/login.html')
+def logout(request):
+    if request.user.is_authenticated:
+        auth.logout(request=request)
+        redirect('login')
+    return render(request,'user_auth/logout.html')
+
+def change_password(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        current_password = request.POST['currentpassword']
+        new_password = request.POST['newpassword']
+        
+        if request.user.is_authenticated:
+            user = UserData.objects.filter(username=username)
+            user2 = User.objects.filter(username=username)
+            if len(user) == 1:
+                if user['password'] == current_password:
+                    user.password = new_password
+                    user.password2 = new_password
+                    user.save()
+                    user2.password = new_password
+                    user2.save()
+                    messages.info(request,'password changed successfully, login again')
+                    return redirect('login')
+                else:
+                    messages.info(request,' current password is incorrect')
+                    return redirect('change_password')
+        else:
+            messages.info(request,'kindly login')
+            return redirect('login')
+    return render(request,'user_auth/change_password.html')
+
+def forget_password(request):
     if request.method == 'POST':
         user = models.User()
         user.username = request.POST['username']
@@ -116,10 +248,108 @@ def register(request):
         else:
             messages.info(request,'Password Did not matched')
             return redirect('register')
-    return render(request,'register.html')
+    return render(request,'user_auth/register.html')
+
+'''
+TASK = [
+			{
+				'start': '2018-10-01',
+				'end': '2018-10-08',
+				'name': 'Redesign website',
+				'id': "0",
+				'progress': 20
+			},
+			{
+				'start': '2018-10-01',
+				'end': '2018-10-08',
+				'name': 'Redesign website',
+				'id': "1",
+				'progress': 20
+			},
+			{
+				'start': '2018-10-03',
+				'end': '2018-10-06',
+				'name': 'Write new content',
+				'id': "1",
+				'progress': 5,
+				'dependencies': '0,10'
+			},
+			{
+				'start': '2018-10-04',
+				'end': '2018-10-08',
+				'name': 'Apply new styles',
+				'id': "2",
+				'progress': 10,
+				'dependencies': '1'
+			},
+			{
+				'start': '2018-10-08',
+				'end': '2018-10-09',
+				'name': 'Review',
+				'id': "Task 3",
+				'progress': 5,
+				'dependencies': '2,1'
+			},
+			{
+				'start': '2018-10-08',
+				'end': '2018-10-10',
+				'name': 'Deploy',
+				'id': "Task 4",
+				'progress': 0,
+				'dependencies': '2'
+			},
+			{
+				'start': '2018-10-11',
+				'end': '2018-10-11',
+				'name': 'Go Live!',
+				'id': "Task 5",
+				'progress': 0,
+				'dependencies': 'Task 4',
+				'custom_class': 'bar-milestone'
+			}
+			
+		]
+'''
+TASK=[      {
+				'start': '2023-09-01',
+				'end': '2023-09-07',
+				'name': 'Sample',
+				'id': "0",
+				'progress': 0
+			}
+        ]
+def project(request,id):
+    if request.method == 'POST':
+        if 'depedency' in request.POST or 'start' in request.POST  :
+            
+            print('insert')
+            print(request.POST['name'])
+            print(request.POST['start'])
+            print(request.POST['end'])
+            print(request.POST['multi-depedency'])
+            
+            activity ={
+                'start': request.POST['start'],
+				'end': request.POST['end'],
+				'name': request.POST['name'],
+				'id': str(len(TASK)),
+				'progress': 50,
+				'dependencies': request.POST['multi-depedency']
+            }
+            print(activity)
+            TASK.append(activity)
+        elif 'activity' in request.POST:
+            for i in TASK:
+                if i['id'] == request.POST['activity']:
+                    TASK.remove(i)
+    data ={ 'TASK':TASK , 'id':1}
+
+    return render(request,'chart/gantta.html',data)
+
+
+
 
 def demo_project(request):
-
 
 
     return render(request,'project.html',data)
@@ -130,3 +360,16 @@ def edit_project(request):
     print(queryset)
 
     return render(request,'edit_project.html',queryset)
+
+def edit_user(request):
+    if request.user.is_authenticated:
+        query = User.objects.filter(username=str(request.user)).values()
+        queryset = UserData.objects.filter(username=query[0]['username']).values()
+        queryset1 = Project.objects.filter(username=query[0]['id']).values()
+        data={
+            'user_id' : query[0]['id'],
+            'user_data' : queryset,
+            'project_data' : queryset1,
+        }
+        return render(request,'edit_user.html',data)
+    return render(request,'user_auth/login.html')

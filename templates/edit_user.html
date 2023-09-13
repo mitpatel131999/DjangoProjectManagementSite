@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>Project Management View</title>
+    <meta charset="utf-8">
+   
+  </head>
+  <body>
+     <h1> User should be able to edit User Data and their Project here </h1>
+     
+     <h3> EDIT The USER DETAILS HERE </h3>
+     {% for x in user_data %}
+      <p> {{ x.id}}</p>
+     <form method="POST" action="" name="project{{x.id}}" >
+        {% csrf_token %}
+        <p>Enter User name</p>
+        <input type="text" name="username" value="{{x.username}}">
+        <p>Enter First name</p>
+        <input type="text" name="firstname"value="{{x.first_name}}">
+        <p>Enter Last name</p>
+        <input type="text" name="lastname" value="{{x.last_name}}">
+        <p>Enter address</p>
+        <input type="text" name="address" value="{{x.address}}">
+        <p>Enter E mail Id</p>
+        <input type="text" name="email" value="{{x.emailId}}">
+        
+        <input type="submit" />
+    </form>
+     {% endfor %}
+
+     <h3> EDIT The USER DETAILS HERE </h3>
+
+     {% for x in project_data %}
+     <form method="POST" action="" name="project{{x.id}}">
+        {% csrf_token %}
+        <p><h5> Project {{x.id}} </h5>
+        <p>Enter Project name</p>
+        <input type="text" name="username" value="{{x.projectName}}">
+        <p>Enter Project description name</p>
+        <input type="text" name="firstname"value="{{x.projectDescription}}">
+        <input type="submit" />
+    </form>
+    {% endfor %}
+</body>
+</html>
