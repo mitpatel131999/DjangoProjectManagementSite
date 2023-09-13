@@ -3,63 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced HTML5 Template</title>
-    <!-- Add your meta tags, link to stylesheets, and other head content here -->
-
-    <!-- Include CSS stylesheets -->
+    <title>Your Construction Project Management Software</title>
+    <!-- Include Bootstrap CSS link here -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add your custom CSS here if needed -->
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Include JavaScript files -->
-    <script src="script.js" defer></script>
-
-    <!-- Add favicons for different devices -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
-
-    <!-- SEO meta tags -->
-    <meta name="description" content="Your website description here">
-    <meta name="keywords" content="keywords, separated, by, commas">
-    <meta name="author" content="Your Name">
-
-    <!-- Open Graph meta tags for social sharing -->
-    <meta property="og:title" content="Advanced HTML5 Template">
-    <meta property="og:description" content="Your website description here">
-    <meta property="og:image" content="og-image.jpg">
-    <meta property="og:url" content="https://example.com">
-    <meta property="og:type" content="website">
 </head>
 <body>
-    <!-- Header section -->
-    <header>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Contact</a></li>
+   <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">ConvergeConstruct</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pricing">Pricing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="login">Sign In</a>
+                </li>
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="register">Sign Up</a>
+                </li>
             </ul>
-        </nav>
+        </div>
+    </div>
+</nav>
+
+    <!-- Hero Section -->
+    <header class="hero bg-primary text-white text-center py-5">
+        <div class="container">
+            <h1 class="display-4">Revolutionize Construction Management</h1>
+            <p class="lead">Empower your construction projects with our advanced software solutions.</p>
+            <a href="#contact" class="btn btn-outline-light btn-lg">Get Started</a>
+        </div>
     </header>
 
-    <!-- Main content section -->
-    <main>
-        <section id="welcome">
-            <h1>Welcome to our Website    {{name}} {{College}} {{CGPA}}</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac nisi urna.</p>
-        </section>
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-calendar-check fa-3x"></i>
+                    </div>
+                    <h3>Efficient Scheduling</h3>
+                    <p>Plan and manage construction schedules with precision. Keep your projects on track.</p>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-dollar-sign fa-3x"></i>
+                    </div>
+                    <h3>Accurate Cost Estimation</h3>
+                    <p>Estimate project costs with confidence. Avoid budget overruns and financial surprises.</p>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                    </div>
+                    <h3>Real-time Analysis</h3>
+                    <p>Monitor progress in real time, analyze data, and make informed decisions for project success.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac nisi urna.</p>
-        </section>
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center">What Our Clients Say</h2>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <blockquote>
+                            "Your software has transformed how we manage our construction projects. It's user-friendly and provides real-time insights that save us time and money."
+                        </blockquote>
+                        <cite>- John Smith, ABC Construction</cite>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <blockquote>
+                            "We've tried several project management tools, but yours is by far the best. The cost estimation feature alone has paid for itself many times over."
+                        </blockquote>
+                        <cite>- Sarah Johnson, XYZ Builders</cite>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <blockquote>
+                            "I can't imagine managing our construction projects without your software. It's an indispensable tool for our success."
+                        </blockquote>
+                        <cite>- Michael Davis, Acme Contractors</cite>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- Add more sections for your website's content -->
-    </main>
-
-    <!-- Footer section -->
-    <footer>
-        <p>&copy; 2023 Your Website Name. All rights reserved.</p>
+    <!-- Pricing Section -->
+   <!-- Pricing Section -->
+<section id="pricing" class="py-5">
+    <div class="container">
+        <h2 class="text-center">Flexible Pricing Plans</h2>
+        <br>
+        <p class="text-center">Choose from our flexible pricing options to suit your construction project needs. We offer transparent and competitive pricing plans.</p>
+        <br>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Starter</h5>
+                        <p class="card-text">Ideal for small construction projects</p>
+                        <h6 class="card-subtitle mb-2 text-muted">$99/month</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success"></i> Basic Scheduling</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Cost Estimation</li>
+                            <li><i class="fas fa-times-circle text-danger"></i> Limited Real-time Analysis</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Email Support</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary btn-block">Get Started</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Pro</h5>
+                        <p class="card-text">For medium-sized construction projects</p>
+                        <h6 class="card-subtitle mb-2 text-muted">$199/month</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success"></i> Advanced Scheduling</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Detailed Cost Estimation</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Real-time Analysis & Reporting</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Email & Phone Support</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary btn-block">Get Started</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Enterprise</h5>
+                        <p class="card-text">For large-scale construction projects</p>
+                        <h6 class="card-subtitle mb-2 text-muted">$499/month</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check-circle text-success"></i> Premium Scheduling Features</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Comprehensive Cost Estimation</li>
+                            <li><i class="fas fa-check-circle text-success"></i> Advanced Real-time Analysis & Reporting</li>
+                            <li><i class="fas fa-check-circle text-success"></i> 24/7 Priority Support</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary btn-block">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h2 class="text-center">Contact Us</h2>
+            <br>
+            <p class="text-center">Have questions or need assistance? Reach out to our team. We're here to help you make the most of our construction project management software.</p>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Our Office</h5>
+                    <p>123 Construction Street</p>
+                    <p>Your City, State ZIP</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Contact Information</h5>
+                    <p>Email: mitpatelr1999@gmail.com</p>
+                    <p>Phone: (61) 404 600 793</p>
+                </div>
+            </div>
+            <div class="row mt-4">
+                {% if mail_send == False %}
+                <div class="col-md-12">
+                    <h5>Contact Form</h5>
+                    <form action="index" method="POST">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <input type="text" class="form-control" placeholder="Your Name" name="name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <input type="email" class="form-control" placeholder="Your Email" name="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Subject" name="subject">
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" rows="5" placeholder="Your Message" name="message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="col-md-12">
+                    <h5>Contact Form has Submited Successfully</h5>
+                </div>    
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    
+    
+    
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p>&copy; 2023 ConvergeConstruct. All rights reserved.</p>
+        </div>
     </footer>
+
+    <!-- Include Bootstrap JS and other scripts here -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

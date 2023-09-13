@@ -7,6 +7,7 @@ from . import models
 
 from myapp.models import Project, UserData, ProjectActivity, ProjectDepedency
 from myapp.serializers import UserSerializer,ProjectSerializer,ProjectActivitySerializer,ProjectDepedencySerializer
+from .emailService import sendEmail
 
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -37,7 +38,27 @@ class UserViewSet(viewsets.ModelViewSet):
 '''
 Experiment
 '''
-        
+
+class Project:
+    def planing(request,id):
+        return  render(request,'project_templates/planing.html')
+
+    def project_quotation(request,id):
+        return  render(request,'project_templates/planing.html')
+
+    def project_report(request,id):
+        return  render(request,'project_templates/planing.html')
+
+    def project_scheduling(request,id):
+        return  render(request,'project_templates/planing.html')
+
+    def project_tracking(request,id):
+        return  render(request,'project_templates/planing.html')
+
+    def project_allocation_and_estimate(request,id):
+        return  render(request,'project_templates/planing.html')
+
+
 def demo_user(request,id):
     if request.user.is_authenticated:
         queryset = UserData.objects.filter(id=id)
@@ -114,141 +135,168 @@ data={     'project_id':1,
         ],
         }
 # Create your views here.
-
+'''
+for Main page of the software
+'''
 def index(request):
-    context={ 'name':'MIT',
-              'College':'IIT',
-              'CGPA': 9.80,
-            }
+    if request.method == 'POST':
+        sender_name = request.POST['name']
+        sender_email = request.POST['email']
+        sender_subject = request.POST['subject']
+        sender_message = request.POST['message']
+        message = ' subject :\n'+sender_subject +'\n\n message: \n'+sender_message + '\n\n Name : '+ sender_name + '\n\n email : ' + sender_email
+        mail = sendEmail(subject='Product Enquire',message=message,recipient_list=sendEmail.email_target)
+        mail.sendEmail()
+        context={'mail_send': True}
+        return render(request,'index.html', context)
+
+
+
+    context={'mail_send': False}
     return render(request,'index.html', context)
+
+'''
+user Activity
+'''
+class UserActivity:
+    def user(request,id):
+        return render(request,'user_templates/user_update.html')
+    
+    def profile(request,id):
+        return render(request,'user_templates/profile.html')
+    
+
 '''
 user Auth
 '''
-def register(request):
+class UserAuth:
+    def register(request):
     
-    if request.user.is_authenticated:
-        messages.info(request,'Already login')
-        redirect('login')
-    if request.method == 'POST':
-        user = models.UserData()
-        user.username = request.POST['username']
-        user.password = request.POST['password']
-        user.password2 = request.POST['Re-password']
-        user.emailId  = request.POST['email']
-        user.first_name = request.POST['firstname']
-        user.last_name = request.POST['lastname']
-        user.address = request.POST['address']
-        if user.password == user.password2:
-            print(11)
-            if User.objects.filter(username=user.username).exists():
-                print(111)
-                messages.info(request,'Username already used')
-                return redirect('register')
-            else:
-                print(2)
-                user_auth=User.objects.create_user(username=request.POST['username'],
-                                                   password=request.POST['password'],
-                                                   email=request.POST['email'])
-                #user_auth.set_password(request.POST['password'])
-                #user_auth.set_unusable_password()
-                ans = user_auth.save()
-                print(ans,'Mit important')
-                user.save()
-                render(request,'user_auth/login.html')
-        else:
-            messages.info(request,'Password did not matched')
-            return redirect('register')
-    return render(request,'user_auth/register.html')
-
-def login(request):
-    if request.user.is_authenticated:
-        messages.info(request,'Already login')
-        redirect('logout')
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-
-        user = auth.authenticate(username=username,password=password)
-        queryset = User.objects.filter(username=username).values()
-        print(queryset)
-        if user is not None:
-            print('login success')
-            auth.login(request,user)
-            redirect('register')
-        else:
-            messages.info(request,'username or password is incorrect')
-            redirect('login')
-        '''
-        queryset = UserData.objects.filter(username=user.username).values()
-        if len(queryset) < 0:
-            messages.info(request,'Username not exist')
-            return redirect('login')
-        if len(queryset) > 1:
-            messages.info(request,'Username user multiple time')
-            return redirect('login')
-        if len(queryset) == 1:
-            user.password2=queryset[0]['password']
-            if user.password == user.password2:
-                messages.info(request,'Login Successfully')
-
-                return redirect('home')
-            else:
-                messages.info(request,'Login Successfully')
-                return redirect('login')
-        '''
-
-        
-    return render(request,'user_auth/login.html')
-def logout(request):
-    if request.user.is_authenticated:
-        auth.logout(request=request)
-        redirect('login')
-    return render(request,'user_auth/logout.html')
-
-def change_password(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        current_password = request.POST['currentpassword']
-        new_password = request.POST['newpassword']
-        
         if request.user.is_authenticated:
-            user = UserData.objects.filter(username=username)
-            user2 = User.objects.filter(username=username)
-            if len(user) == 1:
-                if user['password'] == current_password:
-                    user.password = new_password
-                    user.password2 = new_password
-                    user.save()
-                    user2.password = new_password
-                    user2.save()
-                    messages.info(request,'password changed successfully, login again')
-                    return redirect('login')
+            messages.info(request,'Already login')
+            redirect('login')
+        if request.method == 'POST':
+            user = models.UserData()
+            user.username = request.POST['username']
+            user.password = request.POST['password']
+            user.password2 = request.POST['Re-password']
+            user.emailId  = request.POST['email']
+            user.first_name = request.POST['firstname']
+            user.last_name = request.POST['lastname']
+            user.address = request.POST['address']
+            if user.password == user.password2:
+                print(11)
+                if User.objects.filter(username=user.username).exists():
+                    print(111)
+                    messages.info(request,'Username already used')
+                    return redirect('register')
                 else:
-                    messages.info(request,' current password is incorrect')
-                    return redirect('change_password')
-        else:
-            messages.info(request,'kindly login')
-            return redirect('login')
-    return render(request,'user_auth/change_password.html')
-
-def forget_password(request):
-    if request.method == 'POST':
-        user = models.User()
-        user.username = request.POST['username']
-        user.password = request.POST['password']
-        user.password2 = request.POST['Re-password']
-        user.emailId  = request.POST['email']
-
-        if user.password == user.password2:
-            if User.objects.filter(email=user.emailId).exists():
-                messages.info(request,'Email already used')
-                return redirect('register')
+                    print(2)
+                    user_auth=User.objects.create_user(username=request.POST['username'],
+                                                    password=request.POST['password'],
+                                                    email=request.POST['email'])
+                    #user_auth.set_password(request.POST['password'])
+                    #user_auth.set_unusable_password()
+                    ans = user_auth.save()
+                    print(ans,'Mit important')
+                    user.save()
+                    render(request,'user_auth/login.html')
             else:
-                success=True
-        else:
-            messages.info(request,'Password Did not matched')
-            return redirect('register')
-    return render(request,'user_auth/register.html')
+                messages.info(request,'Password did not matched')
+                return redirect('register')
+        return render(request,'user_auth/register.html')
+
+    def login(request):
+        if request.user.is_authenticated:
+            messages.info(request,'Already login')
+            queryset = User.objects.filter(username=request.user).values()
+            return redirect('user'+'/'+str(queryset[0]['id']))
+            #return redirect('logout')
+        if request.method == 'POST':
+            username = request.POST['username']
+            password = request.POST['password']
+
+            user = auth.authenticate(username=username,password=password)
+            queryset = User.objects.filter(username=username).values()
+            print(queryset)
+            if user is not None:
+                auth.login(request,user)
+                print('login success')
+                return redirect('user'+'/'+str(queryset[0]['id']))
+            else:
+                messages.info(request,'username or password is incorrect')
+                return redirect('login')
+            '''
+            queryset = UserData.objects.filter(username=user.username).values()
+            if len(queryset) < 0:
+                messages.info(request,'Username not exist')
+                return redirect('login')
+            if len(queryset) > 1:
+                messages.info(request,'Username user multiple time')
+                return redirect('login')
+            if len(queryset) == 1:
+                user.password2=queryset[0]['password']
+                if user.password == user.password2:
+                    messages.info(request,'Login Successfully')
+
+                    return redirect('home')
+                else:
+                    messages.info(request,'Login Successfully')
+                    return redirect('login')
+            '''
+
+            
+        return render(request,'user_auth/login.html')
+    def logout(request):
+        if request.user.is_authenticated:
+            auth.logout(request=request)
+            return redirect('logout')
+        return render(request,'user_auth/logout.html')
+
+    def change_password(request):
+        if request.method == 'POST':
+            username = request.POST['username']
+            current_password = request.POST['currentpassword']
+            new_password = request.POST['newpassword']
+            
+            if request.user.is_authenticated:
+                user = UserData.objects.filter(username=username)
+                user2 = User.objects.filter(username=username)
+                if len(user) == 1:
+                    if user[0].password == current_password:
+                        user[0].password = new_password
+                        user[0].password2 = new_password
+                        user[0].save()
+                        user2[0].password = new_password
+                        user2[0].save()
+                        messages.info(request,'password changed successfully, login again')
+                        return redirect('login')
+                    else:
+                        messages.info(request,' current password is incorrect')
+                        return redirect('change_password')
+            else:
+                messages.info(request,'kindly login')
+                return redirect('login')
+        return render(request,'user_auth/change_password.html')
+
+    def forget_password(request):
+        if request.method == 'POST':
+            user = models.User()
+            user.username = request.POST['username']
+            user.password = request.POST['password']
+            user.password2 = request.POST['Re-password']
+            user.emailId  = request.POST['email']
+
+            if user.password == user.password2:
+                if User.objects.filter(email=user.emailId).exists():
+                    messages.info(request,'Email already used')
+                    return redirect('register')
+                else:
+                    success=True
+            else:
+                messages.info(request,'Password Did not matched')
+                return redirect('register')
+        return render(request,'user_auth/register.html')
 
 '''
 TASK = [

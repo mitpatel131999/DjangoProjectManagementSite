@@ -191,8 +191,11 @@
 			view_mode: 'Day',
 			date_format: 'YYYY-MM-DD',
 			language: 'en', // or 'es', 'it', 'ru', 'ptBr', 'fr', 'tr', 'zh', 'de', 'hu'
-			custom_popup_html: null,
-			on_click: task => {
+			custom_popup_html: function(task) {
+                    const end_date = task._end.format('MMM D');
+                    return `<div class="details-container"> <h5>${task.name}</h5> <p>Expected to finish by ${end_date}</p> <p>${task.progress}% completed!</p></div>`;
+                    },
+            on_click: task => {
 				console.log(task);
 			},
 			on_date_change: (task, start, end) => {
