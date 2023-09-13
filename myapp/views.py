@@ -139,20 +139,28 @@ data={     'project_id':1,
 for Main page of the software
 '''
 def index(request):
+    sign_in=False
+    if request.user.is_authenticated:
+        sign_in=True
     if request.method == 'POST':
         sender_name = request.POST['name']
         sender_email = request.POST['email']
         sender_subject = request.POST['subject']
         sender_message = request.POST['message']
+
+        if sender_email == '' or sender_name == '' or sender_subject == '' or sender_message == '' :
+            context={'mail_send': False,'sign_in':sign_in}
+            return render(request,'index.html', context)
+            
         message = ' subject :\n'+sender_subject +'\n\n message: \n'+sender_message + '\n\n Name : '+ sender_name + '\n\n email : ' + sender_email
         mail = sendEmail(subject='Product Enquire',message=message,recipient_list=sendEmail.email_target)
         mail.sendEmail()
-        context={'mail_send': True}
+        context={'mail_send': True ,'sign_in':sign_in}
         return render(request,'index.html', context)
 
 
 
-    context={'mail_send': False}
+    context={'mail_send': False ,'sign_in':sign_in}
     return render(request,'index.html', context)
 
 '''

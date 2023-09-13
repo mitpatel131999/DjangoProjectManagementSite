@@ -7,7 +7,67 @@
     <!-- Include Bootstrap CSS link here -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Add your custom CSS here if needed -->
-    <link rel="stylesheet" href="styles.css">
+    <!--<link rel="stylesheet" href="styles.css"> -->
+    <style>
+        /* Custom CSS for Twitter-like theme */
+        body {
+            background-color: #e1f0fd; /* Light blue background color */
+        }
+
+        .navbar {
+            background-color: #00acee; /* Twitter blue for the navbar */
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: #615555; /* White text color for navigation links */
+        }
+
+        .hero {
+            background-color: #00acee; /* Twitter blue for the hero section */
+            color: #ffffff; /* White text color for hero content */
+        }
+
+        .testimonial {
+            background-color: #ffffff; /* White background for testimonials */
+        }
+
+        .bg-light {
+            background-color: #ffffff; /* White background for light sections */
+        }
+
+        .btn-primary {
+            background-color: #00acee !important; /* Twitter blue for primary buttons */
+        }
+
+        .btn-primary:hover {
+            background-color: #007ead !important; /* Darker blue on hover */
+        }
+
+        /* Custom CSS for the header */
+        .header {
+            background-image: url('static/PROJECTS.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            text-align: center;
+            padding: 100px 0;
+        }
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .header p {
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .header .btn {
+            font-size: 20px;
+        }
+
+    </style>
+
 </head>
 <body>
    <!-- Navbar -->
@@ -28,19 +88,26 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#contact">Contact</a>
                 </li>
+                {% if sign_in == False %}
                 <li class="nav-item mr-2">
                     <a class="btn btn-primary" href="login">Sign In</a>
                 </li>
                 <li class="nav-item mr-2">
                     <a class="btn btn-primary" href="register">Sign Up</a>
                 </li>
+                {% else %}
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="logout">Sign Out</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
     <!-- Hero Section -->
-    <header class="hero bg-primary text-white text-center py-5">
+    <!--<header class="hero bg-primary text-white text-center py-5">-->
+    <header class="header">   
         <div class="container">
             <h1 class="display-4">Revolutionize Construction Management</h1>
             <p class="lead">Empower your construction projects with our advanced software solutions.</p>

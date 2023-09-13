@@ -15,6 +15,9 @@ urlpatterns=[
     #''' Non Auth Mode for Website '''
     path('',views.index,name='index'),
     path('index',views.index,name='index'),
+    path('index#contact',views.index,name='index'),
+    path('index#pricing',views.index,name='index'),
+    path('index#features',views.index,name='index'),
     
     #''' For User Authencation '''
     path('login',views.UserAuth.login,name='login'),
