@@ -38,25 +38,90 @@ class UserViewSet(viewsets.ModelViewSet):
 '''
 Experiment
 '''
+TASK = [
+			{
+				'start': '2018-10-01',
+				'end': '2018-10-08',
+				'name': 'Redesign website',
+				'id': "0",
+				'progress': 20
+			},
+			{
+				'start': '2018-10-01',
+				'end': '2018-10-08',
+				'name': 'Redesign website',
+				'id': "1",
+				'progress': 20
+			},
+			{
+				'start': '2018-10-03',
+				'end': '2018-10-06',
+				'name': 'Write new content',
+				'id': "1",
+				'progress': 5,
+				'dependencies': '0,10'
+			},
+			{
+				'start': '2018-10-04',
+				'end': '2018-10-08',
+				'name': 'Apply new styles',
+				'id': "2",
+				'progress': 10,
+				'dependencies': '1'
+			},
+			{
+				'start': '2018-10-08',
+				'end': '2018-10-09',
+				'name': 'Review',
+				'id': "Task 3",
+				'progress': 5,
+				'dependencies': '2,1'
+			},
+			{
+				'start': '2018-10-08',
+				'end': '2018-10-10',
+				'name': 'Deploy',
+				'id': "Task 4",
+				'progress': 0,
+				'dependencies': '2'
+			},
+			{
+				'start': '2018-10-11',
+				'end': '2018-10-11',
+				'name': 'Go Live!',
+				'id': "Task 5",
+				'progress': 0,
+				'dependencies': 'Task 4',
+				'custom_class': 'bar-milestone'
+			}
+			
+		]
 
 class Project:
+    def project_introduction(request,id):
+        return  render(request,'project_templates/project_introduction.html')
+    
     def planing(request,id):
         return  render(request,'project_templates/planing.html')
 
     def project_quotation(request,id):
-        return  render(request,'project_templates/planing.html')
+        return  render(request,'project_templates/project_quotation.html')
 
     def project_report(request,id):
-        return  render(request,'project_templates/planing.html')
+        return  render(request,'project_templates/project_report.html')
 
     def project_scheduling(request,id):
-        return  render(request,'project_templates/planing.html')
+        return  render(request,'project_templates/project_scheduling.html')
 
     def project_tracking(request,id):
-        return  render(request,'project_templates/planing.html')
+        return  render(request,'project_templates/project_tracking.html')
 
     def project_allocation_and_estimate(request,id):
-        return  render(request,'project_templates/planing.html')
+        return  render(request,'project_templates/project_allocation_and_estimation.html')
+    
+    def project_dashboard(request,id):
+        data ={ 'TASK':TASK , 'id':1}
+        return  render(request,'project_templates/project_dashboard.html',data)
 
 
 def demo_user(request,id):
@@ -169,6 +234,9 @@ user Activity
 class UserActivity:
     def user(request,id):
         return render(request,'user_templates/user_update.html')
+    
+    def dashboard(request,id):
+        return render(request,'user_templates/dashboard.html')
     
     def profile(request,id):
         return render(request,'user_templates/profile.html')
@@ -306,74 +374,8 @@ class UserAuth:
                 return redirect('register')
         return render(request,'user_auth/register.html')
 
-'''
-TASK = [
-			{
-				'start': '2018-10-01',
-				'end': '2018-10-08',
-				'name': 'Redesign website',
-				'id': "0",
-				'progress': 20
-			},
-			{
-				'start': '2018-10-01',
-				'end': '2018-10-08',
-				'name': 'Redesign website',
-				'id': "1",
-				'progress': 20
-			},
-			{
-				'start': '2018-10-03',
-				'end': '2018-10-06',
-				'name': 'Write new content',
-				'id': "1",
-				'progress': 5,
-				'dependencies': '0,10'
-			},
-			{
-				'start': '2018-10-04',
-				'end': '2018-10-08',
-				'name': 'Apply new styles',
-				'id': "2",
-				'progress': 10,
-				'dependencies': '1'
-			},
-			{
-				'start': '2018-10-08',
-				'end': '2018-10-09',
-				'name': 'Review',
-				'id': "Task 3",
-				'progress': 5,
-				'dependencies': '2,1'
-			},
-			{
-				'start': '2018-10-08',
-				'end': '2018-10-10',
-				'name': 'Deploy',
-				'id': "Task 4",
-				'progress': 0,
-				'dependencies': '2'
-			},
-			{
-				'start': '2018-10-11',
-				'end': '2018-10-11',
-				'name': 'Go Live!',
-				'id': "Task 5",
-				'progress': 0,
-				'dependencies': 'Task 4',
-				'custom_class': 'bar-milestone'
-			}
-			
-		]
-'''
-TASK=[      {
-				'start': '2023-09-01',
-				'end': '2023-09-07',
-				'name': 'Sample',
-				'id': "0",
-				'progress': 0
-			}
-        ]
+
+
 def project(request,id):
     if request.method == 'POST':
         if 'depedency' in request.POST or 'start' in request.POST  :

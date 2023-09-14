@@ -28,7 +28,8 @@ urlpatterns=[
     
     #''' For User Specific Activity '''
     path('user/<int:id>',views.UserActivity.user,name='user'),
-    path('profile/<int:id>',views.UserActivity.profile,name='user'),
+    path('dashboard/<int:id>',views.UserActivity.dashboard,name='dashboard'),
+    path('profile/<int:id>',views.UserActivity.profile,name='profile'),
     
     #'''For Project Management'''
     path('project/<int:id>',views.project,name='project'),
@@ -38,6 +39,7 @@ urlpatterns=[
     path('project/project_scheduling/<int:id>',views.Project.project_scheduling,name='project_scheduling'),
     path('project/project_tracking/<int:id>',views.Project.project_tracking,name='project_tracking'),
     path('project/resource_allocation_and_estimate/<int:id>',views.Project.project_allocation_and_estimate,name='resource_allocation_and_estimate'),
+    path('project/project_dashboard/<int:id>',views.Project.project_dashboard,name='project_dashboard'),
     
     
     #'''User for Tech demo not part of actual project'''
