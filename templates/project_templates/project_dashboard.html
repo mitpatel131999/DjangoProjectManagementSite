@@ -130,6 +130,13 @@
                 <li class="nav-item-side" onclick="showSection('team','team-side')" id="team-side">Your Team</li>
                 <li class="nav-item-side" onclick="showSection('chat','chat-side')" id="chat-side">Chat</li>
               </ul>
+              <p><h5 left-margin=" 5 px"> Pro Feature </h5> </p>
+              <ul>
+                  <li class="nav-item-side" onclick="showSection('document_management','document_management-side')" id="document_management-side">Document Management</li>
+                  <li class="nav-item-side" onclick="showSection('purchase_order_management','purchase_order_management-side')" id="purchase_order_management-side">Purchase Management</li>
+                  <li class="nav-item-side" onclick="showSection('invoice_management','invoice_management-side')" id="invoice_management-side">Invoice Management</li>
+                  <li class="nav-item-side" onclick="showSection('billing_management','billing_management-side')" id="billing_management-side">Billing Management</li>
+                </ul>
         
     </div>
 
@@ -1406,6 +1413,760 @@
                     });
                 </script>
             </div>
+
+        <!--Document Management-->
+        <div id="document_management" style="display: none;">
+            <h3>Document Management</h3>
+        
+            <!-- Document upload form -->
+            <form id="documentUploadForm">
+                <div class="form-group">
+                    <label for="activityName">Activity Name:</label>
+                    <input type="text" class="form-control" id="activityName" placeholder="Enter Activity Name">
+                </div>
+                <div class="form-group">
+                    <label for="activityId">Activity ID:</label>
+                    <input type="text" class="form-control" id="activityId" placeholder="Enter Activity ID">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" rows="3" placeholder="Enter Description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Enter Notes"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="file">Upload Document:</label>
+                    <input type="file" class="form-control-file" id="file" accept=".pdf, .doc, .docx">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        
+            <!-- List of uploaded documents -->
+            <h4>Uploaded Documents</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Activity Name</th>
+                        <th>Activity ID</th>
+                        <th>Description</th>
+                        <th>Notes</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody id="documentList">
+                    <!-- Display uploaded documents here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <style>
+            /* CSS styling for the Document Management section */
+            #document_management {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+        
+            #document_management h3 {
+                color: #343a40;
+            }
+        
+            /* Style form inputs and buttons */
+            .form-group {
+                margin-bottom: 15px;
+            }
+        
+            .form-control {
+                width: 100%;
+            }
+        
+            /* Style the document list table */
+            .table {
+                background-color: #fff;
+            }
+        </style>
+        
+        <script>
+            // JavaScript for handling form submissions and updating the document list
+            document.getElementById("documentUploadForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent form submission
+                // Add code to handle document upload and update the document list
+                // You can use JavaScript to create new rows in the document list table dynamically.
+            });
+        </script>
+            
+
+
+        <!--Purchase Order Management-->
+        <div id="purchase_order_management" style="display: none;">
+            <h3>Purchase Order Management</h3>
+        
+            <!-- Purchase Order Creation Form -->
+            <form id="purchaseOrderForm">
+                <div class="form-group">
+                    <label for="orderDescription">Description:</label>
+                    <input type="text" class="form-control" id="orderDescription" placeholder="Enter Order Description" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderItems">Order Items:</label>
+                    <textarea class="form-control" id="orderItems" rows="3" placeholder="Enter Order Items" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="orderBudget">Budget Allocation:</label>
+                    <input type="number" class="form-control" id="orderBudget" placeholder="Enter Budget Allocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderStatus">Status:</label>
+                    <select class="form-control" id="orderStatus">
+                        <option value="Wait for Approval">Wait for Approval</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Place Order">Place Order</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Delivered">Delivered</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Purchase Order</button>
+            </form>
+        
+            <!-- Purchase Order List -->
+            <h4>Purchase Orders</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Description</th>
+                        <th>Items</th>
+                        <th>Budget Allocation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseOrderList">
+                    <!-- Display purchase orders here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Edit Purchase Order Modal -->
+        <div class="modal fade" id="editPurchaseOrderModal" tabindex="-1" role="dialog" aria-labelledby="editPurchaseOrderModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editPurchaseOrderModalLabel">Edit Purchase Order</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit Purchase Order Form -->
+                        <form id="editPurchaseOrderForm">
+                            <div class="form-group">
+                                <label for="editOrderDescription">Description:</label>
+                                <input type="text" class="form-control" id="editOrderDescription" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editOrderItems">Order Items:</label>
+                                <textarea class="form-control" id="editOrderItems" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="editOrderBudget">Budget Allocation:</label>
+                                <input type="number" class="form-control" id="editOrderBudget" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editOrderStatus">Status:</label>
+                                <select class="form-control" id="editOrderStatus">
+                                    <option value="Wait for Approval">Wait for Approval</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Place Order">Place Order</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Delivered">Delivered</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="editOrderIndex">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEditedPurchaseOrder()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            /* CSS styling for the Purchase Order Management section */
+            #purchase_order_management {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+        
+            #purchase_order_management h3 {
+                color: #343a40;
+            }
+        
+            /* Style form inputs and buttons */
+            .form-group {
+                margin-bottom: 15px;
+            }
+        
+            .form-control {
+                width: 100%;
+            }
+        
+            /* Style the purchase order list table */
+            .table {
+                background-color: #fff;
+            }
+        </style>
+        
+        <script>
+            // JavaScript for handling purchase order creation and editing
+            const purchaseOrders = []; // Array to store purchase orders
+        
+            document.getElementById("purchaseOrderForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent form submission
+                const description = document.getElementById("orderDescription").value;
+                const items = document.getElementById("orderItems").value;
+                const budget = document.getElementById("orderBudget").value;
+                const status = document.getElementById("orderStatus").value;
+        
+                // Create a new purchase order object
+                const newOrder = {
+                    description,
+                    items,
+                    budget,
+                    status,
+                };
+        
+                // Add the new order to the array
+                purchaseOrders.push(newOrder);
+        
+                // Update the purchase order list table
+                updatePurchaseOrderList();
+        
+                // Clear form inputs
+                document.getElementById("orderDescription").value = "";
+                document.getElementById("orderItems").value = "";
+                document.getElementById("orderBudget").value = "";
+            });
+        
+            // Function to update the purchase order list table
+            function updatePurchaseOrderList() {
+                const purchaseOrderList = document.getElementById("purchaseOrderList");
+                purchaseOrderList.innerHTML = ""; // Clear the existing list
+        
+                // Loop through the purchaseOrders array and create rows in the table
+                purchaseOrders.forEach((order, index) => {
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${order.description}</td>
+                        <td>${order.items}</td>
+                        <td>${order.budget}</td>
+                        <td>${order.status}</td>
+                        <td>
+                            <button class="btn btn-info" onclick="editPurchaseOrder(${index})">Edit</button>
+                        </td>
+                    `;
+                    purchaseOrderList.appendChild(newRow);
+                });
+            }
+        
+            // Function to edit a purchase order
+            function editPurchaseOrder(index) {
+                const orderToEdit = purchaseOrders[index];
+                document.getElementById("editOrderDescription").value = orderToEdit.description;
+                document.getElementById("editOrderItems").value = orderToEdit.items;
+                document.getElementById("editOrderBudget").value = orderToEdit.budget;
+                document.getElementById("editOrderStatus").value = orderToEdit.status;
+                document.getElementById("editOrderIndex").value = index;
+        
+                // Show the edit modal
+                $("#editPurchaseOrderModal").modal("show");
+            }
+        
+            // Function to save the edited purchase order
+            function saveEditedPurchaseOrder() {
+                const editedIndex = document.getElementById("editOrderIndex").value;
+                const editedOrder = {
+                    description: document.getElementById("editOrderDescription").value,
+                    items: document.getElementById("editOrderItems").value,
+                    budget: document.getElementById("editOrderBudget").value,
+                    status: document.getElementById("editOrderStatus").value,
+                };
+        
+                // Update the purchaseOrders array with the edited order
+                purchaseOrders[editedIndex] = editedOrder;
+        
+                // Update the purchase order list table
+                updatePurchaseOrderList();
+        
+                // Hide the edit modal
+                $("#editPurchaseOrderModal").modal("hide");
+            }
+        </script>
+                
+        
+        <!--Invoice Management-->
+        <div id="invoice_management" style="display: none;">
+            <h3>Invoice Management</h3>
+        
+            <!-- Invoice Receipt and Review Form -->
+            <form id="invoiceReceiptForm">
+                <div class="form-group">
+                    <label for="invoiceSupplier">Supplier:</label>
+                    <input type="text" class="form-control" id="invoiceSupplier" placeholder="Enter Supplier Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceAmount">Invoice Amount:</label>
+                    <input type="number" class="form-control" id="invoiceAmount" placeholder="Enter Invoice Amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceStatus">Status:</label>
+                    <select class="form-control" id="invoiceStatus">
+                        <option value="Pending Review">Pending Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Receive Invoice</button>
+            </form>
+        
+            <!-- Invoice List -->
+            <h4>Invoices</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Supplier</th>
+                        <th>Invoice Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceList">
+                    <!-- Display invoices here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Edit Invoice Modal -->
+        <div class="modal fade" id="editInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editInvoiceModalLabel">Edit Invoice</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit Invoice Form -->
+                        <form id="editInvoiceForm">
+                            <div class="form-group">
+                                <label for="editInvoiceSupplier">Supplier:</label>
+                                <input type="text" class="form-control" id="editInvoiceSupplier" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editInvoiceAmount">Invoice Amount:</label>
+                                <input type="number" class="form-control" id="editInvoiceAmount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editInvoiceStatus">Status:</label>
+                                <select class="form-control" id="editInvoiceStatus">
+                                    <option value="Pending Review">Pending Review</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="editInvoiceIndex">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEditedInvoice()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            /* CSS styling for the Invoice Management section */
+            #invoice_management {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+        
+            #invoice_management h3 {
+                color: #343a40;
+            }
+        
+            /* Style form inputs and buttons */
+            .form-group {
+                margin-bottom: 15px;
+            }
+        
+            .form-control {
+                width: 100%;
+            }
+        
+            /* Style the invoice list table */
+            .table {
+                background-color: #fff;
+            }
+        </style>
+        
+        <script>
+            // JavaScript for handling invoice receipt and editing
+            const invoices = []; // Array to store invoices
+        
+            document.getElementById("invoiceReceiptForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent form submission
+                const supplier = document.getElementById("invoiceSupplier").value;
+                const amount = document.getElementById("invoiceAmount").value;
+                const status = document.getElementById("invoiceStatus").value;
+        
+                // Create a new invoice object
+                const newInvoice = {
+                    supplier,
+                    amount,
+                    status,
+                };
+        
+                // Add the new invoice to the array
+                invoices.push(newInvoice);
+        
+                // Update the invoice list table
+                updateInvoiceList();
+        
+                // Clear form inputs
+                document.getElementById("invoiceSupplier").value = "";
+                document.getElementById("invoiceAmount").value = "";
+            });
+        
+            // Function to update the invoice list table
+            function updateInvoiceList() {
+                const invoiceList = document.getElementById("invoiceList");
+                invoiceList.innerHTML = ""; // Clear the existing list
+        
+                // Loop through the invoices array and create rows in the table
+                invoices.forEach((invoice, index) => {
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${invoice.supplier}</td>
+                        <td>${invoice.amount}</td>
+                        <td>${invoice.status}</td>
+                        <td>
+                            <button class="btn btn-info" onclick="editInvoice(${index})">Edit</button>
+                        </td>
+                    `;
+                    invoiceList.appendChild(newRow);
+                });
+            }
+        
+            // Function to edit an invoice
+            function editInvoice(index) {
+                const invoiceToEdit = invoices[index];
+                document.getElementById("editInvoiceSupplier").value = invoiceToEdit.supplier;
+                document.getElementById("editInvoiceAmount").value = invoiceToEdit.amount;
+                document.getElementById("editInvoiceStatus").value = invoiceToEdit.status;
+                document.getElementById("editInvoiceIndex").value = index;
+        
+                // Show the edit modal
+                $("#editInvoiceModal").modal("show");
+            }
+        
+            // Function to save the edited invoice
+            function saveEditedInvoice() {
+                const editedIndex = document.getElementById("editInvoiceIndex").value;
+                const editedInvoice = {
+                    supplier: document.getElementById("editInvoiceSupplier").value,
+                    amount: document.getElementById("editInvoiceAmount").value,
+                    status: document.getElementById("editInvoiceStatus").value,
+                };
+        
+                // Update the invoices array with the edited invoice
+                invoices[editedIndex] = editedInvoice;
+        
+                // Update the invoice list table
+                updateInvoiceList();
+        
+                // Hide the edit modal
+                $("#editInvoiceModal").modal("hide");
+            }
+        
+            // Initial update of the invoice list
+            updateInvoiceList();
+        </script>
+        
+
+        <!--Billing Management-->
+        <!-- Billing Management Section -->
+        <!-- Include jsPDF and html2pdf.js scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+        <div id="billing_management" style="display: none;">
+            <h2>Billing Management</h2>
+
+            <!-- Progress Billing -->
+            <div id="progressBilling">
+                <h3>Progress Billing</h3>
+                <form id="progressBillingForm">
+                    <div class="mb-3">
+                        <label for="progressDescription" class="form-label">Progress Description</label>
+                        <input type="text" class="form-control" id="progressDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressAmount" class="form-label">Progress Amount ($)</label>
+                        <input type="number" class="form-control" id="progressAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressDetails" class="form-label">Progress Details</label>
+                        <textarea class="form-control" id="progressDetails" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="generateProgressBillingPDF()">Create Progress Billing</button>
+                </form>
+            </div>
+
+            <!-- Change Orders -->
+            <div id="changeOrders">
+                <h3>Change Orders</h3>
+                <form id="changeOrdersForm">
+                    <div class="mb-3">
+                        <label for="changeOrderDescription" class="form-label">Change Order Description</label>
+                        <input type="text" class="form-control" id="changeOrderDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="changeOrderAmount" class="form-label">Change Order Amount ($)</label>
+                        <input type="number" class="form-control" id="changeOrderAmount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Change Order</button>
+                </form>
+            </div>
+
+            <!-- Client Invoicing -->
+            <div id="clientInvoicing">
+                <h3>Client Invoicing</h3>
+                <form id="clientInvoicingForm">
+                    <div class="mb-3">
+                        <label for="clientInvoiceDescription" class="form-label">Invoice Description</label>
+                        <input type="text" class="form-control" id="clientInvoiceDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clientInvoiceAmount" class="form-label">Invoice Amount ($)</label>
+                        <input type="number" class="form-control" id="clientInvoiceAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clientInvoiceDetails" class="form-label">Invoice Details</label>
+                        <textarea class="form-control" id="clientInvoiceDetails" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Invoice</button>
+                </form>
+            </div>
+
+            <!-- Retainage Management -->
+            <div id="retainageManagement">
+                <h3>Retainage Management</h3>
+                <form id="retainageManagementForm">
+                    <div class="mb-3">
+                        <label for="retainageDescription" class="form-label">Retainage Description</label>
+                        <input type="text" class="form-control" id="retainageDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="retainageAmount" class="form-label">Retainage Amount ($)</label>
+                        <input type="number" class="form-control" id="retainageAmount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Retainage</button>
+                </form>
+            </div>
+
+            <!-- Reporting and Documentation -->
+            <div id="billingReports">
+                <h3>Billing Reports</h3>
+                <p>Download billing reports and documentation:</p>
+                <button class="btn btn-secondary" onclick="generateBillingReport()">Generate Billing Report</button>
+                <a class="btn btn-primary" href="#" download="billing_report.pdf" id="downloadReportLink" style="display: none;">Download Billing Report</a>
+            </div>
+
+            <script>
+                // JavaScript for handling billing management actions
+                const progressBillings = [];
+                const changeOrders = [];
+                const clientInvoices = [];
+                const retainages = [];
+
+                // JavaScript for handling billing management actions
+                // ... (similar arrays for other billing types)
+
+                // Function to display billings on the page
+                function displayBillings(billings, containerId) {
+                    const container = document.getElementById(containerId);
+                    container.innerHTML = "";
+                    billings.forEach((billing, index) => {
+                        const billingDiv = document.createElement("div");
+                        billingDiv.innerHTML = `<strong>${billing.type}:</strong> ${billing.description}, Amount: $${billing.amount.toFixed(2)}<br>`;
+                        container.appendChild(billingDiv);
+                    });
+                }
+
+                // Function to generate a PDF for Progress Billing
+                function generateProgressBillingPDF() {
+                    const progressBillingList = document.getElementById("progressBillingList");
+                    displayBillings(progressBillings, "progressBillingList");
+                    const pdfElement = progressBillingList;
+
+                    const opt = {
+                        margin: 10,
+                        filename: 'progress_billing.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    // Generate PDF
+                    html2pdf()
+                        .from(pdfElement)
+                        .set(opt)
+                        .outputPdf()
+                        .then(function(pdf) {
+                            const pdfBlob = new Blob([pdf], { type: 'application/pdf' });
+                            const pdfUrl = URL.createObjectURL(pdfBlob);
+                            const link = document.createElement('a');
+                            link.href = pdfUrl;
+                            link.download = 'progress_billing.pdf';
+                            link.click();
+                        });
+                }
+
+
+                document.getElementById("progressBillingForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const progressDescription = document.getElementById("progressDescription").value;
+                    const progressAmount = parseFloat(document.getElementById("progressAmount").value);
+                    const progressDetails = document.getElementById("progressDetails").value;
+
+                    if (!progressDescription || isNaN(progressAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const progressBilling = {
+                        description: progressDescription,
+                        amount: progressAmount,
+                        details: progressDetails,
+                    };
+
+                    progressBillings.push(progressBilling);
+
+                    // Display progress billing (you can implement display logic here)
+                    alert(`Progress Billing Created:\nDescription: ${progressBilling.description}\nAmount: $${progressBilling.amount.toFixed(2)}\nDetails: ${progressBilling.details}`);
+
+                    document.getElementById("progressDescription").value = "";
+                    document.getElementById("progressAmount").value = "";
+                    document.getElementById("progressDetails").value = "";
+                });
+
+                document.getElementById("changeOrdersForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const changeOrderDescription = document.getElementById("changeOrderDescription").value;
+                    const changeOrderAmount = parseFloat(document.getElementById("changeOrderAmount").value);
+
+                    if (!changeOrderDescription || isNaN(changeOrderAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const changeOrder = {
+                        description: changeOrderDescription,
+                        amount: changeOrderAmount,
+                    };
+
+                    changeOrders.push(changeOrder);
+
+                    // Display change order (you can implement display logic here)
+                    alert(`Change Order Created:\nDescription: ${changeOrder.description}\nAmount: $${changeOrder.amount.toFixed(2)}`);
+
+                    document.getElementById("changeOrderDescription").value = "";
+                    document.getElementById("changeOrderAmount").value = "";
+                });
+
+                document.getElementById("clientInvoicingForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const clientInvoiceDescription = document.getElementById("clientInvoiceDescription").value;
+                    const clientInvoiceAmount = parseFloat(document.getElementById("clientInvoiceAmount").value);
+                    const clientInvoiceDetails = document.getElementById("clientInvoiceDetails").value;
+
+                    if (!clientInvoiceDescription || isNaN(clientInvoiceAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const clientInvoice = {
+                        description: clientInvoiceDescription,
+                        amount: clientInvoiceAmount,
+                        details: clientInvoiceDetails,
+                    };
+
+                    clientInvoices.push(clientInvoice);
+
+                    // Display client invoice (you can implement display logic here)
+                    alert(`Client Invoice Generated:\nDescription: ${clientInvoice.description}\nAmount: $${clientInvoice.amount.toFixed(2)}\nDetails: ${clientInvoice.details}`);
+
+                    document.getElementById("clientInvoiceDescription").value = "";
+                    document.getElementById("clientInvoiceAmount").value = "";
+                    document.getElementById("clientInvoiceDetails").value = "";
+                });
+
+                document.getElementById("retainageManagementForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const retainageDescription = document.getElementById("retainageDescription").value;
+                    const retainageAmount = parseFloat(document.getElementById("retainageAmount").value);
+
+                    if (!retainageDescription || isNaN(retainageAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const retainage = {
+                        description: retainageDescription,
+                        amount: retainageAmount,
+                    };
+
+                    retainages.push(retainage);
+
+                    // Display retainage (you can implement display logic here)
+                    alert(`Retainage Created:\nDescription: ${retainage.description}\nAmount: $${retainage.amount.toFixed(2)}`);
+
+                    document.getElementById("retainageDescription").value = "";
+                    document.getElementById("retainageAmount").value = "";
+                });
+
+                function generateBillingReport() {
+                    // Generate billing report (you can implement report generation logic here)
+                    alert("Billing report generated successfully!");
+
+                    // Display the download link
+                    document.getElementById("downloadReportLink").style.display = "block";
+                }
+            </script>
+        </div>
+                
 
         <!-- Common Channel (Chat) -->
         <!-- Include Bootstrap CSS and JavaScript -->

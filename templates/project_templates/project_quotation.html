@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Construction Project Management Dashboard</title>
+    <!-- Include Bootstrap CSS link here -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add your custom CSS here if needed -->
+    <style>
+        /* Custom CSS for a fresh and modern theme */
+        body {
+            background-color: #f4f4f4; /* Light gray background color */
+        }
+
+        .navbar {
+            background-color: #00acee; /* Twitter blue for the navbar */
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: #ffffff; /* White text color for navigation links */
+        }
+
+        .header {
+            background-image: url('static/PROJECTS.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            text-align: center;
+            padding: 100px 0;
+        }
+
+        /* Custom CSS for the sidebar and content */
+        .container {
+            margin-top: 20px;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 75px;
+            height: 100%;
+            width: 250px;
+            background-color: #007ead; /* Twitter blue for the sidebar */
+            color: #fff;
+            padding-top: 20px;
+        }
+
+        .nav-item-side {
+            background-color: #019fde; /* Darker blue for navigation items */
+            margin: 2px;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-item-side.active {
+            background-color: #01b5fc; /* Twitter blue for active box */
+            font-weight: bold;
+        }
+
+        .main-content {
+            margin-left: 290px;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff; /* White background for content */
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for the content */
+        }
+
+        /* Add more custom styles for cards, chat box, etc., as needed */
+        .project-card {
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Shadow for project cards */
+            border-radius: 5px;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+        .sticky {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">ConvergeConstruct Dashboard</a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                {% if sign_in == False %}
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="login">Sign In</a>
+                </li>
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="register">Sign Up</a>
+                </li>
+                {% else %}
+                <li class="nav-item mr-2">
+                    <a class="btn btn-primary" href="../../logout">Sign Out</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+            <p><h5 padding=" 5 px"> Project Details </h5></p>  
+            <ul>
+                <li class="nav-item-side active" onclick="showSection('dashboard','dashboard-side')" id="dashboard-side">Dashboard</li>
+                <li class="nav-item-side" onclick="showSection('planning','planning-side')" id="planning-side">Planning</li>
+                <li class="nav-item-side" onclick="showSection('resource','resource-side')" id="resource-side">Resource Management</li>
+                <li class="nav-item-side" onclick="showSection('quotation','quotation-side')" id="quotation-side">Project Quotation</li>
+                <li class="nav-item-side" onclick="showSection('scheduling','scheduling-side')" id="scheduling-side">Project Scheduling</li>
+                <li class="nav-item-side" onclick="showSection('tracking','tracking-side')" id="tracking-side">Project Tracking</li>
+                <li class="nav-item-side" onclick="showSection('report','report-side')" id="report-side">Project Report</li>
+            </ul>
+            <p><h5 left-margin=" 5 px"> Collobrator </h5> </p>
+            <ul>
+                <li class="nav-item-side" onclick="showSection('projects','projects-side')" id="projects-side">Your Projects</li>
+                <li class="nav-item-side" onclick="showSection('team','team-side')" id="team-side">Your Team</li>
+                <li class="nav-item-side" onclick="showSection('chat','chat-side')" id="chat-side">Chat</li>
+              </ul>
+        
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content container ">
+        <!-- Dashboard -->
+            <!-- Include Chart.js library -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+        <div id="dashboard" style="display: block;">
+            <h2>Dashboard Content</h2>
+            <div class="row">
+                <!-- Project Completion Pie Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Project Completion</h5>
+                                <canvas id="completionPieChart"></canvas>
+                                <p class="card-text">
+                                    Track the completion status of your projects with this interactive pie chart. Stay updated on project progress.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost Estimate and Planned Curve Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Cost Estimate and Planned Curve</h5>
+                                <canvas id="curveLineChart"></canvas>
+                                <p class="card-text">
+                                    Visualize your project's cost estimate and planned curve. Ensure that your budget aligns with your project timeline.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Quotation and Actual Cost Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Project Quotation vs Actual Cost</h5>
+                                <canvas id="quotationCostBarChart"></canvas>
+                                <p class="card-text">
+                                    Compare project quotations with actual costs incurred. Ensure cost accuracy and budget adherence.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Scheduling Gantt Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Project Scheduling Gantt Chart</h5>
+                                <canvas id="schedulingGanttChart"></canvas>
+                                <p class="card-text">
+                                    View project schedules and timelines in a Gantt chart format. Stay organized and manage project tasks efficiently.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Generate random data for the completion pie chart
+            const completionPieData = {
+                labels: ['Completed', 'In Progress', 'Not Started'],
+                datasets: [{
+                    data: [Math.random() * 100, Math.random() * 100, Math.random() * 100],
+                    backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'],
+                }],
+            };
+
+            // Generate random data for the cost estimate and planned curve chart
+            const curveLineData = {
+                labels: ['January', 'February', 'March', 'April', 'May'],
+                datasets: [{
+                    label: 'Planned Cost',
+                    data: [Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000],
+                    borderColor: '#36A2EB',
+                    borderWidth: 2,
+                    fill: false,
+                },
+                {
+                    label: 'Actual Cost',
+                    data: [Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000, Math.random() * 1000],
+                    borderColor: '#FF6384',
+                    borderWidth: 2,
+                    fill: false,
+                }],
+            };
+
+            // Generate random data for the quotation vs actual cost chart
+            const quotationCostBarData = {
+                labels: ['Project 1', 'Project 2', 'Project 3', 'Project 4', 'Project 5'],
+                datasets: [{
+                    label: 'Quotation Cost',
+                    data: [Math.random() * 5000, Math.random() * 5000, Math.random() * 5000, Math.random() * 5000, Math.random() * 5000],
+                    backgroundColor: '#36A2EB',
+                },
+                {
+                    label: 'Actual Cost',
+                    data: [Math.random() * 5000, Math.random() * 5000, Math.random() * 5000, Math.random() * 5000, Math.random() * 5000],
+                    backgroundColor: '#FF6384',
+                }],
+            };
+
+            // Generate random data for the scheduling Gantt chart
+            const schedulingGanttData = {
+                labels: ['Task 1', 'Task 2', 'Task 3', 'Task 4'],
+                datasets: [{
+                    label: 'Project Schedule',
+                    data: [
+                        { x: '2023-09-01', y: '2023-09-15' },
+                        { x: '2023-09-16', y: '2023-10-05' },
+                        { x: '2023-10-06', y: '2023-10-25' },
+                        { x: '2023-10-26', y: '2023-11-10' },
+                    ],
+                    backgroundColor: '#36A2EB',
+                }],
+            };
+
+            // Create the completion pie chart
+            const completionPieChart = new Chart(document.getElementById('completionPieChart'), {
+                type: 'pie',
+                data: completionPieData,
+            });
+
+            // Create the cost estimate and planned curve chart
+            const curveLineChart = new Chart(document.getElementById('curveLineChart'), {
+                type: 'line',
+                data: curveLineData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+            });
+
+            // Create the quotation vs actual cost bar chart
+            const quotationCostBarChart = new Chart(document.getElementById('quotationCostBarChart'), {
+                type: 'bar',
+                data: quotationCostBarData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+            });
+
+            // Create the scheduling Gantt chart
+            const schedulingGanttChart = new Chart(document.getElementById('schedulingGanttChart'), {
+                type: 'timeline',
+                data: schedulingGanttData,
+            });
+        </script>
+
+        <!-- User's Projects -->
+                    <!-- Single Project Description -->
+            <div id="projects" style="display: none;">
+                <h2>Your Projects</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Project Card -->
+                        <div class="project-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Project Title -->
+                                    <h5 class="card-title">Project 1: Construction of Office Building</h5>
+                                    
+                                    <!-- Project Description -->
+                                    <p class="card-text">
+                                        <strong>Description:</strong>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in urna quis ex venenatis eleifend.
+                                        Fusce auctor elit at turpis vehicula, at posuere ex eleifend. Nulla facilisi. Donec non facilisis purus.
+                                    </p>
+                                    
+                                    <!-- Team Members -->
+                                    <p class="card-text">
+                                        <strong>Team Members:</strong>
+                                        John Doe (Project Manager), Sarah Smith (Architect), Michael Johnson (Engineer)
+                                    </p>
+                                    
+                                    <!-- Project Actions or Links -->
+                                    <div class="project-actions">
+                                        <a href="#" class="btn btn-primary">View Details</a>
+                                        <a href="#" class="btn btn-secondary">Edit Project</a>
+                                        <a href="#" class="btn btn-danger">Delete Project</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more project cards as needed -->
+                    </div>
+                </div>
+            </div>
+
+
+        <!-- Team Members -->
+            <div id="team" style="display: none;">
+                <h2>Your Team Members</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Team Member Card -->
+                        <div class="team-member-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Team Member Name -->
+                                    <h5 class="card-title">John Doe</h5>
+                                    
+                                    <!-- Team Member Role -->
+                                    <p class="card-text">
+                                        <strong>Role:</strong> Developer
+                                    </p>
+                                    
+                                    <!-- Team Member Email -->
+                                    <p class="card-text">
+                                        <strong>Email:</strong> john@example.com
+                                    </p>
+                                    
+                                    <!-- Team Member Contact -->
+                                    <p class="card-text">
+                                        <strong>Contact:</strong> +1 (123) 456-7890
+                                    </p>
+                                    
+                                    <!-- Team Member Bio -->
+                                    <p class="card-text">
+                                        <strong>Bio:</strong>
+                                        John is an experienced developer with a passion for creating innovative solutions. He specializes in web development and has a track record of delivering high-quality projects on time.
+                                    </p>
+                                    
+                                    <!-- Additional Team Member Details -->
+                                    <div class="team-member-details">
+                                        <a href="#" class="btn btn-primary">View Profile</a>
+                                        <a href="#" class="btn btn-secondary">Send Message</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more team member cards as needed -->
+                    </div>
+                </div>
+            </div>
+
+
+        <!-- Planning Section -->
+        <!-- Planning -->
+            <div id="planning" style="display: none;">
+                <h2>Planning</h2>
+                <div class="planning-content">
+                    <!-- Task Entry Form -->
+                    <div class="task-entry">
+                        <h3>Add New Task</h3>
+                        <form id="taskForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="taskId">Task ID</label>
+                                    <input type="text" class="form-control" id="taskId" placeholder="Task ID">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="taskShortName">Short Name</label>
+                                    <input type="text" class="form-control" id="taskShortName" placeholder="Short Name">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="taskDescription">Description</label>
+                                    <input type="text" class="form-control" id="taskDescription" placeholder="Description">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Task</button>
+                        </form>
+                    </div>
+                    <br>
+                    <!-- Task Table -->
+                    <div class="task-table">
+                        <h3>Task List</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Task ID</th>
+                                    <th>Short Name</th>
+                                    <th>Description</th>
+                                    <!-- Add more columns as needed -->
+                                </tr>
+                            </thead>
+                            <tbody id="taskList">
+                                <!-- Task entries will be added here using JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Function to add a new task to the task table
+                function addTaskToTable(id, shortName, description) {
+                    const taskList = document.getElementById("taskList");
+                    const newRow = taskList.insertRow(-1);
+                    const cell1 = newRow.insertCell(0);
+                    const cell2 = newRow.insertCell(1);
+                    const cell3 = newRow.insertCell(2);
+                    cell1.innerHTML = id;
+                    cell2.innerHTML = shortName;
+                    cell3.innerHTML = description;
+                    // Add more cells and data as needed
+                }
+
+                // Submit task when the form is submitted
+                const taskForm = document.getElementById("taskForm");
+                taskForm.addEventListener("submit", function (e) {
+                    e.preventDefault(); // Prevent the form from submitting traditionally
+                    const taskIdInput = document.getElementById("taskId");
+                    const taskShortNameInput = document.getElementById("taskShortName");
+                    const taskDescriptionInput = document.getElementById("taskDescription");
+                    const taskId = taskIdInput.value;
+                    const taskShortName = taskShortNameInput.value;
+                    const taskDescription = taskDescriptionInput.value;
+                    if (taskId.trim() !== "" && taskShortName.trim() !== "" && taskDescription.trim() !== "") {
+                        addTaskToTable(taskId, taskShortName, taskDescription);
+                        // Clear the input fields
+                        taskIdInput.value = "";
+                        taskShortNameInput.value = "";
+                        taskDescriptionInput.value = "";
+                    }
+                });
+            </script>
+
+
+        <!-- Resource Management Section -->
+            <!-- Resource Management -->
+            <div id="resource" style="display: none;">
+                <h2>Resource Management</h2>
+                <div class="resource-content">
+                    <!-- Labor Cost Estimation Table -->
+                    <div class="labor-cost">
+                        <h3>Labor Cost Estimation</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Work Package Number</th>
+                                    <th>Skilled Labor</th>
+                                    <th>Unskilled Labor</th>
+                                    <th>Rate Skilled</th>
+                                    <th>Rate Unskilled</th>
+                                    <th>Total Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-control activity-name">
+                                            <option value="WP-001">WP-001</option>
+                                            <option value="WP-002">WP-002</option>
+                                            <option value="WP-003">WP-003</option>
+                                            <!-- Add more Work Package Numbers as needed -->
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="form-control skilled-labor" value="0" /></td>
+                                    <td><input type="number" class="form-control unskilled-labor" value="0" /></td>
+                                    <td><input type="number" class="form-control rate-skilled" value="0" /></td>
+                                    <td><input type="number" class="form-control rate-unskilled" value="0" /></td>
+                                    <td class="total-cost">0</td>
+                                    <td>
+                                        <button class="btn btn-danger remove-row">Remove</button>
+                                    </td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary add-row">Add Row</button>
+                    </div>
+
+                    <!-- Material Cost Estimation Table -->
+                    <div class="material-cost">
+                        <h3>Material Cost Estimation</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Work Package Number</th>
+                                    <th>Cement</th>
+                                    <th>Brick</th>
+                                    <th>Sand</th>
+                                    <th>Miscellaneous</th>
+                                    <th>Total Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-control activity-name">
+                                            <option value="WP-001">WP-001</option>
+                                            <option value="WP-002">WP-002</option>
+                                            <option value="WP-003">WP-003</option>
+                                            <!-- Add more Work Package Numbers as needed -->
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="form-control cement" value="0" /></td>
+                                    <td><input type="number" class="form-control brick" value="0" /></td>
+                                    <td><input type="number" class="form-control sand" value="0" /></td>
+                                    <td><input type="number" class="form-control miscellaneous" value="0" /></td>
+                                    <td class="total-cost">0</td>
+                                    <td>
+                                        <button class="btn btn-danger remove-row">Remove</button>
+                                    </td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary add-row">Add Row</button>
+                    </div>
+
+                    <!-- Equipment Cost Estimation Table -->
+                    <div class="equipment-cost">
+                        <h3>Equipment Cost Estimation</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Work Package Number</th>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>D</th>
+                                    <th>E</th>
+                                    <th>F</th>
+                                    <th>G</th>
+                                    <th>H</th>
+                                    <th>I</th>
+                                    <th>J</th>
+                                    <th>K</th>
+                                    <th>Total Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-control activity-name">
+                                            <option value="WP-001">WP-001</option>
+                                            <option value="WP-002">WP-002</option>
+                                            <option value="WP-003">WP-003</option>
+                                            <!-- Add more Work Package Numbers as needed -->
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="form-control equipment-a" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-b" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-c" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-d" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-e" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-f" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-g" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-h" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-i" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-j" value="0" /></td>
+                                    <td><input type="number" class="form-control equipment-k" value="0" /></td>
+                                    <td class="total-cost">0</td>
+                                    <td>
+                                        <button class="btn btn-danger remove-row">Remove</button>
+                                    </td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary add-row">Add Row</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom JavaScript and CSS -->
+            <script>
+                $(document).ready(function () {
+                    // Calculate total cost and handle row removal
+                    function updateTotalCost(table) {
+                        table.find("tbody tr").each(function () {
+                            let total = 0;
+                            $(this)
+                                .find("input[type=number]")
+                                .each(function () {
+                                    total += parseFloat($(this).val()) || 0;
+                                });
+                            $(this).find(".total-cost").text(total.toFixed(2));
+                        });
+                    }
+
+                    $("body").on("input", "input[type=number]", function () {
+                        updateTotalCost($(this).closest("table"));
+                    });
+
+                    $("body").on("click", ".remove-row", function () {
+                        $(this).closest("tr").remove();
+                        updateTotalCost($(this).closest("table"));
+                    });
+
+                    // Add Row button click handler
+                    $("body").on("click", ".add-row", function () {
+                        const table = $(this).closest(".table");
+                        const newRow = table.find("tbody tr:first").clone();
+                        newRow.find("input[type=number]").val(0);
+                        table.find("tbody").append(newRow);
+                        updateTotalCost(table);
+                    });
+
+                    // Initial calculation of total cost
+                    $("input[type=number]").trigger("input");
+                });
+            </script>
+
+
+
+        <!-- Cost Estimation Section -->
+        <div id="quotation" style="display: none;">
+            <h2>Project Quotation</h2>
+            <div class="quotation-content">
+                <h3>Quotation Items</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Activity</th>
+                            <th>Rate (per unit)</th>
+                            <th>Number of Units</th>
+                            <th>Type of Unit</th>
+                            <th>Total Cost</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Quotation items will be added here dynamically -->
+                    </tbody>
+                </table>
+        
+                <button class="btn btn-primary" id="add-quotation-item">Add Item</button>
+                <button class="btn btn-success" id="calculate-quotation">Calculate Quotation</button>
+        
+                <h3>Total Quotation Amount</h3>
+                <div id="total-quotation-amount">$0.00</div>
+            </div>
+        </div>
+        
+        <!-- Custom JavaScript and CSS -->
+        <script>
+            $(document).ready(function () {
+                // Function to add a new quotation item row
+                function addQuotationItem() {
+                    const newRow = `
+                    <tr>
+                        <td><input type="text" class="form-control activity" value="" /></td>
+                        <td><input type="number" class="form-control rate" value="0.00" /></td>
+                        <td><input type="number" class="form-control num-units" value="0" /></td>
+                        <td>
+                            <select class="form-control type-of-unit">
+                                <option value="sqft">sqft</option>
+                                <option value="sqm">sqm</option>
+                                <option value="meter">meter</option>
+                                <option value="unit">unit</option>
+                                <!-- Add more units as needed -->
+                            </select>
+                        </td>
+                        <td class="total-cost">$0.00</td>
+                        <td><button class="btn btn-danger remove-row">Remove</button></td>
+                    </tr>
+                    `;
+                    $('table tbody').append(newRow);
+                }
+        
+                // Function to calculate the total quotation amount
+                function calculateTotalQuotation() {
+                    let totalAmount = 0;
+                    $('table tbody tr').each(function () {
+                        const rate = parseFloat($(this).find('.rate').val());
+                        const numUnits = parseInt($(this).find('.num-units').val());
+                        const unitType = $(this).find('.type-of-unit').val();
+                        let total = 0;
+        
+                        if (unitType === 'sqft') {
+                            total = rate * numUnits;
+                        } else if (unitType === 'sqm') {
+                            total = rate * numUnits / 10.764;
+                        } else if (unitType === 'meter') {
+                            total = rate * numUnits;
+                        } else if (unitType === 'unit') {
+                            total = rate * numUnits;
+                        }
+                        $(this).find('.total-cost').text('$' + total.toFixed(2));
+                        totalAmount += total;
+                    });
+                    $('#total-quotation-amount').text('$' + totalAmount.toFixed(2));
+                }
+        
+                // Add Row button click handler
+                $('#add-quotation-item').on('click', function () {
+                    addQuotationItem();
+                });
+        
+                // Calculate Quotation button click handler
+                $('#calculate-quotation').on('click', function () {
+                    calculateTotalQuotation();
+                });
+        
+                // Remove Row button click handler
+                $('table tbody').on('click', '.remove-row', function () {
+                    $(this).closest('tr').remove();
+                    calculateTotalQuotation();
+                });
+            });
+        </script>
+        
+        <style>
+            /* Additional CSS for improved styling */
+            .quotation-content {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+        
+            .quotation-content h3 {
+                text-align: center;
+            }
+        
+            table {
+                margin-top: 20px;
+            }
+        
+            table th,
+            table td {
+                text-align: center;
+            }
+        
+            .total-cost {
+                font-weight: bold;
+            }
+        
+            #total-quotation-amount {
+                font-size: 24px;
+                font-weight: bold;
+                text-align: center;
+                margin-top: 20px;
+            }
+        </style>
+                
+                                
+
+        <!-- Project Scheduling Section -->
+        <div id="scheduling" style="display: none;">
+            <h2>Project Scheduling</h2>
+            <style>
+                .gantt-container {
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .scheduling-buttons {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                .scheduling-buttons button {
+                    margin-right: 10px;
+                }
+                .scheduling-buttons button:last-child {
+                    margin-right: 0;
+                }
+                .save-button {
+                    text-align: center;
+                }
+                .save-button button {
+                    background-color: #007bff;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                }
+                .save-button button:hover {
+                    background-color: #0056b3;
+                }
+            </style>
+            <link rel="stylesheet" href="../../static/gantt/dist/frappe-gantt.css" />
+            <script src="../../static/gantt/dist/frappe-gantt.js"></script>
+            <div class="gantt-container">
+                <div class="gantt-target-scheduling"></div>
+            <br>
+            <!-- Add your buttons here -->
+            <div class="scheduling-buttons">
+                <button onclick="changeView('Quarter Day')">Quarter Day</button>
+                <button onclick="changeView('Half Day')">Half Day</button>
+                <button onclick="changeView('Day')">Day</button>
+                <button onclick="changeView('Week')">Week</button>
+                <button onclick="changeView('Month')">Month</button>
+            </div>
+        
+            <!-- ADD Activity Form -->
+            <form id="Insert" name="Insert" action="" method="POST">
+                {% csrf_token %}
+                <p><h3>Add Activity</h3></p>
+                <input type="text" id="name" name="name" placeholder="Enter Activity Name">
+                <input type="date" id="start" name="start" placeholder="Expected Start Date">
+                <input type="date" id="end" name="end" placeholder="Expected End Date">
+                <select name="depedency" id="depedency"  multiple="multiple" aria-placeholder="Enter Dependency">
+                    <!--
+                    {% for x in TASK %}
+                    <option value="{{x.id}}">{{x.name}}</option>
+                    {% endfor %}
+                    -->
+                  
+                </select>
+                <input type="submit" value="Add Activity" onclick="addActivity()">
+            </form>
+            <br>
+            </div>
+            <br>
+            <!-- Save Button -->
+            <div class="save-button" >
+                <button name="save" onclick="saveData()">Save</button>
+            </div>
+
+        
+            <script>
+                var tasks = [
+                    {
+                        start: '2023-09-15',
+                        end: '2023-09-18',
+                        name: 'Task 1',
+                        id: "1",
+                        progress: 30
+                    },
+                    {
+                        start: '2023-09-18',
+                        end: '2023-09-22',
+                        name: 'Task 2',
+                        id: "2",
+                        progress: 20,
+                        dependencies: '1'
+                    },
+                    {
+                        start: '2023-09-22',
+                        end: '2023-09-24',
+                        name: 'Task 3',
+                        id: "3",
+                        progress: 10,
+                        dependencies: '2'
+                    }
+                ];
+                function activityView() {
+                    for (i = 0, len = tasks.length, text = ""; i < len; i++) {
+                        text += "<option value="+tasks[i].id+">"+tasks[i].name+"</option>";
+                      }
+                    document.getElementById("depedency").innerHTML = text;    
+                }
+                activityView();
+                var gantt_chart_scheduling = new Gantt(".gantt-target-scheduling", tasks, {
+                    header_height: 50,
+                    column_width: 30,
+                    step: 24,
+                    view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                    bar_height: 20,
+                    bar_corner_radius: 3,
+                    arrow_curve: 5,
+                    padding: 18,
+                    view_mode: 'Day',
+                    date_format: 'YYYY-MM-DD',
+                    language: 'en',
+                    on_click: task => {
+                        console.log(task);
+                    },
+                    on_date_change: (task, start, end) => {
+                        console.log(task, start, end);
+                    },
+                    on_progress_change: (task, progress) => {
+                        console.log(task, progress);
+                    },
+                    on_view_change: (mode) => {
+                        console.log(mode);
+                    },
+                    view_mode: 'Week',
+                    language: 'en'
+                });
+        
+                gantt_chart_scheduling.change_view_mode('Week');
+        
+                // Function to change the view mode
+                function changeView(mode) {
+                    gantt_chart_scheduling.change_view_mode(mode);
+                }
+        
+                // Function to add activity
+                function addActivity() {
+                    // Get form values and add a new task to the Gantt chart
+                    var activityName = document.getElementById('name').value;
+                    var startDate = document.getElementById('start').value;
+                    var endDate = document.getElementById('end').value;
+                    var dependencies = document.getElementById('depedency').selectedOptions;
+                    var dependencyValues = Array.from(dependencies).map(({ value }) => value);
+        
+                    var newTask = {
+                        start: startDate,
+                        end: endDate,
+                        name: activityName,
+                        id: tasks.length + 1, // Generate a unique ID for the task
+                        progress: 0, // Set initial progress to 0
+                        dependencies: dependencyValues.join(',')
+                    };
+        
+                    tasks.push(newTask);
+        
+                    // Refresh the Gantt chart
+                    gantt_chart_scheduling.refresh(tasks);
+                    activityView();
+                }
+        
+                // Function to save data (placeholder function)
+                function saveData() {
+                    alert('Data saved successfully!');
+                }
+            </script>
+        </div>
+        
+
+        <!-- Project Tracking Section -->
+        <div id="tracking" style="display: none;">
+            <h2>Project Tracking</h2>
+            <div id="activity-list">
+                <!-- Sample Activity 1 -->
+                <div class="activity">
+                    <h3>Activity 1: Flooring</h3>
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Progress (%)</th>
+                                <th>Labor Cost</th>
+                                <th>Equipment Cost</th>
+                                <th>Material Cost</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-1">
+                            <!-- Sample Data Rows -->
+                            <tr>
+                                <td><input type="date" id="date-1-1" /></td>
+                                <td><input type="number" id="progress-1-1" min="0" max="100" /></td>
+                                <td><input type="number" id="labor-cost-1-1" min="0" /></td>
+                                <td><input type="number" id="equipment-cost-1-1" min="0" /></td>
+                                <td><input type="number" id="material-cost-1-1" min="0" /></td>
+                                <td><button onclick="addTransaction(1)">ADD</button></td>
+                            </tr>
+                            <!-- Add more data rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- Sample Activity 2 -->
+                <!-- Add more activities with similar structure as needed -->
+            </div>
+        
+            <!-- Show All Transactions -->
+            <h3>All Transactions</h3>
+            <table id="all-transactions" class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Activity</th>
+                        <th>Progress (%)</th>
+                        <th>Labor Cost</th>
+                        <th>Equipment Cost</th>
+                        <th>Material Cost</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="transactions-1">
+                    <!-- Sample Data Rows -->
+                    <tr>
+                        <td><input type="date" id="date-1-1" /></td>
+                        <td><input type="number" id="progress-1-1" min="0" max="100" /></td>
+                        <td><input type="number" id="labor-cost-1-1" min="0" /></td>
+                        <td><input type="number" id="equipment-cost-1-1" min="0" /></td>
+                        <td><input type="number" id="material-cost-1-1" min="0" /></td>
+                        <td><button onclick="updateTransaction(1, 1)">Update</button></td>
+                        <td><button onclick="deleteTransaction(1, 1)">Delete</button></td>
+                    </tr>
+                    <!-- Add more data rows as needed -->
+                </tbody>
+                <!-- All transactions will be added here dynamically -->
+            </table>
+        
+            <!-- Total Cost and Progress per Activity -->
+            <h3>Total Cost and Progress per Activity</h3>
+            <table id="total-progress-cost" class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Progress (%)</th>
+                        <th>Total Labor Cost</th>
+                        <th>Total Equipment Cost</th>
+                        <th>Total Material Cost</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <!-- Total cost and progress per activity will be added here dynamically -->
+            </table>
+        
+            <!-- Custom CSS for styling -->
+            <style>
+                /* Add custom CSS here */
+                .activity {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    margin-bottom: 20px;
+                    border-radius: 5px;
+                }
+
+                .activity-table {
+                    width: 100%;
+                }
+
+                .activity-table th,
+                .activity-table td {
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                .btn {
+                    padding: 5px 10px;
+                }
+
+                .update-delete-btns {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .transaction-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 5px;
+                }
+
+                .transaction-row input[type="date"],
+                .transaction-row input[type="number"] {
+                    width: 100%;
+                    max-width: 150px;
+                }
+
+                /* Add more custom CSS as needed */
+            </style>
+
+            <!-- Custom JavaScript -->
+            <script>
+                // Define an object to store activity data, including transactions
+                const activities = {};
+
+                // Function to add a new activity
+                function addActivity(activityId, activityName) {
+                    // Initialize an empty activity object
+                    activities[activityId] = {
+                        name: activityName,
+                        transactions: [],
+                    };
+
+                    // Create the activity HTML structure using Bootstrap classes
+                    const activityList = document.getElementById("activity-list");
+                    const activityDiv = document.createElement("div");
+                    activityDiv.className = "activity";
+                    activityDiv.innerHTML = `
+                        <h3>${activityName}</h3>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary" onclick="addTransaction(${activityId})">Add Transaction</button>
+                        </div>
+                        <table class="table table-bordered activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Progress (%)</th>
+                                    <th>Labor Cost</th>
+                                    <th>Equipment Cost</th>
+                                    <th>Material Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-${activityId}">
+                                <!-- Transaction rows will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    `;
+
+                    activityList.appendChild(activityDiv);
+                }
+
+                // Function to add a new transaction row to an activity
+                function addTransaction(activityId) {
+                    const activity = activities[activityId];
+                    const transactionsTable = document.getElementById(`transactions-${activityId}`);
+
+                    // Create a new transaction object and add it to the activity
+                    const newTransaction = {
+                        date: "",
+                        progress: 0,
+                        laborCost: 0,
+                        equipmentCost: 0,
+                        materialCost: 0,
+                    };
+                    activity.transactions.push(newTransaction);
+
+                    // Get the index of the newly added transaction
+                    const transactionIndex = activity.transactions.length - 1;
+
+                    // Create a new row in the table and populate it with inputs and buttons
+                    const newRow = transactionsTable.insertRow(-1);
+                    newRow.className = "transaction-row";
+                    newRow.innerHTML = `
+                        <td><input type="date" class="form-control" id="date-${activityId}-${transactionIndex}" /></td>
+                        <td><input type="number" class="form-control" id="progress-${activityId}-${transactionIndex}" min="0" max="100" /></td>
+                        <td><input type="number" class="form-control" id="labor-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td><input type="number" class="form-control" id="equipment-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td><input type="number" class="form-control" id="material-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td class="update-delete-btns">
+                            <button class="btn btn-success" onclick="updateTransaction(${activityId}, ${transactionIndex})">Update</button>
+                            <button class="btn btn-danger" onclick="deleteTransaction(${activityId}, ${transactionIndex})">Delete</button>
+                        </td>
+                    `;
+                }
+
+                // Function to update a transaction in an activity
+                function updateTransaction(activityId, transactionIndex) {
+                    const activity = activities[activityId];
+                    const dateInput = document.getElementById(`date-${activityId}-${transactionIndex}`);
+                    const progressInput = document.getElementById(`progress-${activityId}-${transactionIndex}`);
+                    const laborCostInput = document.getElementById(`labor-cost-${activityId}-${transactionIndex}`);
+                    const equipmentCostInput = document.getElementById(`equipment-cost-${activityId}-${transactionIndex}`);
+                    const materialCostInput = document.getElementById(`material-cost-${activityId}-${transactionIndex}`);
+
+                    // Update the transaction object with new data
+                    const transaction = activity.transactions[transactionIndex];
+                    transaction.date = dateInput.value;
+                    transaction.progress = parseInt(progressInput.value);
+                    transaction.laborCost = parseFloat(laborCostInput.value);
+                    transaction.equipmentCost = parseFloat(equipmentCostInput.value);
+                    transaction.materialCost = parseFloat(materialCostInput.value);
+
+                    // Update the table cell with new values (e.g., date and progress)
+                    const dateCell = document.getElementById(`transactions-${activityId}`).rows[transactionIndex].cells[0];
+                    dateCell.textContent = transaction.date;
+
+                    const progressCell = document.getElementById(`transactions-${activityId}`).rows[transactionIndex].cells[1];
+                    progressCell.textContent = transaction.progress + "%";
+                }
+
+                // Function to delete a transaction from an activity
+                function deleteTransaction(activityId, transactionIndex) {
+                    const activity = activities[activityId];
+                    activity.transactions.splice(transactionIndex, 1);
+
+                    // Remove the row from the HTML table
+                    const transactionsTable = document.getElementById(`transactions-${activityId}`);
+                    transactionsTable.deleteRow(transactionIndex);
+                }
+            </script>
+
+            
+        </div>
+                                                        
+            <!-- Project Report Section -->
+            <!-- Include Bootstrap CSS and JavaScript -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+            <!-- Include Chart.js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            
+            <div id="report" style="display: none;">
+                <h2 class="text-center mb-4">Project Report</h2>
+
+                <!-- Project Summary -->
+                <div class="container">
+                    <h3>Project Summary</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi.</p>
+                </div>
+
+                <!-- Project Progress Table -->
+                <div class="container mt-4">
+                    <h3>Project Progress</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Progress (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2023-09-15</td>
+                                <td>Flooring</td>
+                                <td>40</td>
+                            </tr>
+                            <!-- Add more rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Activity Progress Charts -->
+                <div class="container mt-4">
+                    <h3>Activity Progress Charts</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="activityChart1"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="activityChart2"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Cost Analysis -->
+                <div class="container mt-4">
+                    <h3>Detailed Cost Analysis</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="costChart1"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Cost ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Labor</td>
+                                        <td>2000</td>
+                                    </tr>
+                                    <!-- Add more cost items as needed -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Timeline -->
+                <div class="container mt-4">
+                    <h3>Project Timeline</h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JavaScript for Charts -->
+                <script>
+                    // Sample data for charts (replace with your data)
+                    const activityData1 = {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            {
+                                label: 'Flooring Progress',
+                                data: [20, 40, 60, 80], // Progress percentages for each week
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Chart background color
+                                borderColor: 'rgba(75, 192, 192, 1)', // Border color
+                                borderWidth: 1, // Border width
+                            },
+                        ],
+                    };
+
+                    const activityData2 = {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            {
+                                label: 'Painting Progress',
+                                data: [10, 30, 50, 70], // Progress percentages for each week
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Chart background color
+                                borderColor: 'rgba(255, 99, 132, 1)', // Border color
+                                borderWidth: 1, // Border width
+                            },
+                        ],
+                    };
+
+                    const costData = {
+                        labels: ['Labor', 'Equipment', 'Material'],
+                        datasets: [
+                            {
+                                data: [2000, 1500, 800], // Cost values for each item
+                                backgroundColor: ['#007bff', '#dc3545', '#ffc107'], // Chart background colors
+                                borderWidth: 0,
+                            },
+                        ],
+                    };
+
+                    const timelineData = {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            {
+                                label: 'Planned',
+                                data: [50, 100, 150, 200], // Planned progress for each week
+                                borderColor: 'rgba(75, 192, 192, 1)', // Border color
+                                borderWidth: 2, // Border width
+                                fill: false,
+                                type: 'line',
+                            },
+                            {
+                                label: 'Actual',
+                                data: [20, 40, 60, 80], // Actual progress for each week
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Chart background color
+                                borderColor: 'rgba(255, 99, 132, 1)', // Border color
+                                borderWidth: 1, // Border width
+                            },
+                        ],
+                    };
+
+                    // Create charts using Chart.js
+                    const ctx1 = document.getElementById('activityChart1').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'bar', // Bar chart
+                        data: activityData1,
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100, // Set the maximum value on the Y-axis
+                                },
+                            },
+                        },
+                    });
+
+                    const ctx2 = document.getElementById('activityChart2').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'bar', // Bar chart
+                        data: activityData2,
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100, // Set the maximum value on the Y-axis
+                                },
+                            },
+                        },
+                    });
+
+                    const costCtx = document.getElementById('costChart1').getContext('2d');
+                    new Chart(costCtx, {
+                        type: 'doughnut', // Doughnut chart
+                        data: costData,
+                    });
+
+                    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+                    new Chart(timelineCtx, {
+                        type: 'line', // Line chart
+                        data: timelineData,
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 250, // Set the maximum value on the Y-axis
+                                },
+                            },
+                        },
+                    });
+                </script>
+            </div>
+
+        <!-- Common Channel (Chat) -->
+        <!-- Include Bootstrap CSS and JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+        <!-- Include Emoji Picker -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@3.0.1/emojiPicker.css">
+        <div id="chat" style="display: none;">
+            <h2>Common Channel (Chat)</h2>
+            <div class="chat-box">
+                <!-- Chat messages will be displayed here -->
+            </div>
+    
+            <!-- Chat Input Form -->
+            <form id="chatForm">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatMessage" placeholder="Type your message...">
+                    <input type="file" id="fileInput" style="display: none;" accept="image/*">
+                    <button type="button" class="btn btn-primary" id="emojiButton">😀</button>
+                    <button type="button" class="btn btn-primary" id="fileButton">📎</button>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </div>
+    
+        <!-- Include Emoji Picker Script -->
+        <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@3.0.1/emojiPicker.js"></script>
+    
+        <script>
+            // Initialize Emoji Picker
+            const emojiButton = document.getElementById("emojiButton");
+            const chatMessageInput = document.getElementById("chatMessage");
+            const emojiPicker = new EmojiPicker();
+            emojiPicker.init({
+                position: 'top-start',
+                size: '320px',
+                theme: 'dark',
+            });
+            emojiButton.addEventListener("click", () => {
+                emojiPicker.togglePicker(chatMessageInput);
+            });
+    
+            // Function to append a new chat message to the chat box
+            function appendMessage(sender, content) {
+                const chatBox = document.querySelector(".chat-box");
+                const message = document.createElement("div");
+                message.classList.add("message");
+                message.innerHTML = `
+                    <p class="message-sender">${sender}:</p>
+                    <p class="message-content">${content}</p>
+                `;
+                chatBox.appendChild(message);
+                // Scroll to the bottom of the chat box to show the latest message
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+    
+            // Function to handle file upload
+            function handleFileUpload(files) {
+                const file = files[0]; // Get the first selected file
+                if (file && file.type.startsWith("image/")) {
+                    // Display the image in the chat
+                    const imageUrl = URL.createObjectURL(file);
+                    const img = document.createElement("img");
+                    img.src = imageUrl;
+                    appendMessage("You", img.outerHTML);
+                }
+            }
+    
+            // Handle file input change
+            const fileInput = document.getElementById("fileInput");
+            fileInput.addEventListener("change", () => {
+                handleFileUpload(fileInput.files);
+            });
+    
+            // Submit chat message when the form is submitted
+            const chatForm = document.getElementById("chatForm");
+            chatForm.addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent the form from submitting traditionally
+                const messageContent = chatMessageInput.value;
+                if (messageContent.trim() !== "") {
+                    appendMessage("You", messageContent); // Display the user's own message
+                    chatMessageInput.value = ""; // Clear the input field
+                    // Simulate a response after a short delay (for demonstration)
+                    setTimeout(function () {
+                        appendMessage("User B", "I received your message!");
+                    }, 1000);
+                }
+            });
+    
+            // File button click handler
+            const fileButton = document.getElementById("fileButton");
+            fileButton.addEventListener("click", () => {
+                fileInput.click();
+            });
+        </script> 
+
+    </div>
+
+    <!-- Include Bootstrap JS and other scripts here -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // JavaScript function to show/hide sections based on user clicks
+        function showSection(sectionId, sectionIdSide) {
+            // Hide all sections
+            const sections = document.querySelectorAll(".main-content > div");
+            sections.forEach((section) => {
+                section.style.display = "none";
+            });
+
+            // Show the selected section
+            document.getElementById(sectionId).style.display = "block";
+
+            // Mark the active navigation item
+            const navItems = document.querySelectorAll(".nav-item-side");
+            navItems.forEach((navItem) => {
+                navItem.classList.remove("active");
+            });
+
+            document.getElementById(sectionIdSide).classList.add("active");
+        }
+    </script>
+</body>
+</html>
