@@ -43,13 +43,13 @@
             width: 250px;
             background-color: #007ead; /* Twitter blue for the sidebar */
             color: #fff;
-            padding-top: 40px;
+            padding-top: 20px;
         }
 
         .nav-item-side {
             background-color: #019fde; /* Darker blue for navigation items */
-            margin: 5px;
-            padding: 10px;
+            margin: 2px;
+            padding: 5px;
             border-radius: 5px;
             cursor: pointer;
         }
@@ -114,18 +114,23 @@
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
-        <ul>
-            <li class="nav-item-side active" onclick="showSection('dashboard','dashboard-side')" id="dashboard-side">Dashboard</li>
-            <li class="nav-item-side" onclick="showSection('projects','projects-side')" id="projects-side">Your Projects</li>
-            <li class="nav-item-side" onclick="showSection('team','team-side')" id="team-side">Your Team</li>
-            <li class="nav-item-side" onclick="showSection('chat','chat-side')" id="chat-side">Chat</li>
-            <li class="nav-item-side" onclick="showSection('planning','planning-side')" id="planning-side">Planning</li>
-            <li class="nav-item-side" onclick="showSection('resource','resource-side')" id="resource-side">Resource Management</li>
-            <li class="nav-item-side" onclick="showSection('quotation','quotation-side')" id="quotation-side">Project Quotation</li>
-            <li class="nav-item-side" onclick="showSection('scheduling','scheduling-side')" id="scheduling-side">Project Scheduling</li>
-            <li class="nav-item-side" onclick="showSection('tracking','tracking-side')" id="tracking-side">Project Tracking</li>
-            <li class="nav-item-side" onclick="showSection('report','report-side')" id="report-side">Project Report</li>
-        </ul>
+            <p><h5 padding=" 5 px"> Project Details </h5></p>  
+            <ul>
+                <li class="nav-item-side active" onclick="showSection('dashboard','dashboard-side')" id="dashboard-side">Dashboard</li>
+                <li class="nav-item-side" onclick="showSection('planning','planning-side')" id="planning-side">Planning</li>
+                <li class="nav-item-side" onclick="showSection('resource','resource-side')" id="resource-side">Resource Management</li>
+                <li class="nav-item-side" onclick="showSection('quotation','quotation-side')" id="quotation-side">Project Quotation</li>
+                <li class="nav-item-side" onclick="showSection('scheduling','scheduling-side')" id="scheduling-side">Project Scheduling</li>
+                <li class="nav-item-side" onclick="showSection('tracking','tracking-side')" id="tracking-side">Project Tracking</li>
+                <li class="nav-item-side" onclick="showSection('report','report-side')" id="report-side">Project Report</li>
+            </ul>
+            <p><h5 left-margin=" 5 px"> Collobrator </h5> </p>
+            <ul>
+                <li class="nav-item-side" onclick="showSection('projects','projects-side')" id="projects-side">Your Projects</li>
+                <li class="nav-item-side" onclick="showSection('team','team-side')" id="team-side">Your Team</li>
+                <li class="nav-item-side" onclick="showSection('chat','chat-side')" id="chat-side">Chat</li>
+              </ul>
+        
     </div>
 
     <!-- Main Content -->
@@ -411,7 +416,7 @@
                             <button type="submit" class="btn btn-primary">Add Task</button>
                         </form>
                     </div>
-
+                    <br>
                     <!-- Task Table -->
                     <div class="task-table">
                         <h3>Task List</h3>
