@@ -32,14 +32,19 @@ urlpatterns=[
     path('profile/<int:id>',views.UserActivity.profile,name='profile'),
     
     #'''For Project Management'''
-    path('project/<int:id>',views.project,name='project'),
-    path('project/planing/<int:id>',views.Project.planing,name='planing'),
-    path('project/project_quotation/<int:id>',views.Project.project_quotation,name='project_quotation'),
-    path('project/project_report/<int:id>',views.Project.project_report,name='project_report'),
-    path('project/project_scheduling/<int:id>',views.Project.project_scheduling,name='project_scheduling'),
-    path('project/project_tracking/<int:id>',views.Project.project_tracking,name='project_tracking'),
-    path('project/resource_allocation_and_estimate/<int:id>',views.Project.project_allocation_and_estimate,name='resource_allocation_and_estimate'),
-    path('project/project_dashboard/<int:id>',views.Project.project_dashboard,name='project_dashboard'),
+    path('project/<int:id>',views.Project.project,name='project'),
+    #path('project/planing/<int:id>',views.Project.planing,name='planing'),
+    #path('project/project_quotation/<int:id>',views.Project.project_quotation,name='project_quotation'),
+    #path('project/project_report/<int:id>',views.Project.project_report,name='project_report'),
+    #path('project/project_scheduling/<int:id>',views.Project.project_scheduling,name='project_scheduling'),
+    #path('project/project_tracking/<int:id>',views.Project.project_tracking,name='project_tracking'),
+    #path('project/resource_allocation_and_estimate/<int:id>',views.Project.project_allocation_and_estimate,name='resource_allocation_and_estimate'),
+    #path('project/project_dashboard/<int:id>',views.Project.project_dashboard,name='project_dashboard'),
+    #'''project api'''
+    path('project/api-load/<int:id>',views.ProjectApi.projectApiLoadData,name='projectLoadData'),
+    path('project/api-upload/<int:id>',views.ProjectApi.projectApiUpLoadData,name='projectUpLoadData'),
+
+
     
     
     #'''User for Tech demo not part of actual project'''

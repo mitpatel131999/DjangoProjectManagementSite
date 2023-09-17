@@ -1,9 +1,10 @@
 from django.shortcuts import render , redirect
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseBadRequest
 from django.contrib.auth.models import User 
 from django.contrib.auth.models import AnonymousUser 
 from django.contrib  import messages , auth
 from . import models
+
 
 from myapp.models import Project, UserData, ProjectActivity, ProjectDepedency
 from myapp.serializers import UserSerializer,ProjectSerializer,ProjectActivitySerializer,ProjectDepedencySerializer
@@ -97,7 +98,47 @@ TASK = [
 			
 		]
 
+'''
+Manageing the data upload and load to server and web pages
+
+Needs to add security measure in order to match the security
+'''
+from django.http import JsonResponse
+import json
+
+class ProjectApi:
+    def projectApiLoadData(request,id):
+        print('loading the data')
+        return JsonResponse(data)
+    
+    def projectApiUpLoadData(request,id):
+
+        print('uploading the data')
+        print(request.method)
+        data={}
+        if request.method == 'POST':
+            array=request.POST.get('num1')
+            print(array,type(array))
+            data = '{ "data":'+array+'}'
+            print(data , type(data))
+            ar = json.loads(data)
+            print(ar)
+            ar['data'].append('22')
+            print(ar,'updated')
+            response = {'key2' : ar['data']}
+            return JsonResponse(response)
+        print(data)
+        return JsonResponse(data)
+        
+
+'''
+Successfully manage to send request from web page get server and also able to return it properly 
+'''
+    
 class Project:
+    def project(request,id):
+        return  render(request,'project_templates/project.html')
+
     def project_introduction(request,id):
         return  render(request,'project_templates/project_introduction.html')
     

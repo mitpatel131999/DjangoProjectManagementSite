@@ -845,7 +845,7 @@
             <!-- ADD Activity Form -->
             <form id="Insert" name="Insert" action="" method="POST">
                 {% csrf_token %}
-                <p><h3>Add Activity</h3></p>
+                <p><h4>Add Activity</h4> Note: you can select multiple activity as predecessor use 'Ctrl +'</p>
                 <input type="text" id="name" name="name" placeholder="Enter Activity Name">
                 <input type="date" id="start" name="start" placeholder="Expected Start Date">
                 <input type="date" id="end" name="end" placeholder="Expected End Date">
@@ -860,8 +860,24 @@
                 <input type="submit" value="Add Activity" onclick="addActivity()">
             </form>
             <br>
+            <!-- Delete Activity Form -->
+	
+	
+            <form id="Delete" action=""  method="POST">
+                {% csrf_token %}
+                <p><h4>Delete Task</h4> Note: This will only remove from scheduling part not from Project</p>
+                <select name="activity" id="activity" aria-placeholder="Select Activity">
+                    {% for x in TASK%}
+                    <option value="{{x.id}}">{{x.name}}</option>
+                    {% endfor%}
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+
             </div>
             <br>
+
+                    
             <!-- Save Button -->
             <div class="save-button" >
                 <button name="save" onclick="saveData()">Save</button>
@@ -975,7 +991,7 @@
             <div id="activity-list">
                 <!-- Sample Activity 1 -->
                 <div class="activity">
-                    <h3>Activity 1: Flooring</h3>
+                    <h4>Activity 1: Flooring</h4>
                     <table class="activity-table">
                         <thead>
                             <tr>
@@ -1007,7 +1023,7 @@
             </div>
         
             <!-- Show All Transactions -->
-            <h3>All Transactions</h3>
+            <h4>All Transactions</h4>
             <table id="all-transactions" class="activity-table">
                 <thead>
                     <tr>
@@ -1037,7 +1053,7 @@
             </table>
         
             <!-- Total Cost and Progress per Activity -->
-            <h3>Total Cost and Progress per Activity</h3>
+            <h4>Total Cost and Progress per Activity</h4>
             <table id="total-progress-cost" class="activity-table">
                 <thead>
                     <tr>
@@ -2531,6 +2547,10 @@
                 fileInput.click();
             });
         </script> 
+            
+            <!-- Testing the  functionality for the Api-->
+            <button type="submit" class="btn btn-primary" id="submitButton" onclick="makeid(10)">Submit To API</button>
+
 
     </div>
 
@@ -2559,5 +2579,41 @@
             document.getElementById(sectionIdSide).classList.add("active");
         }
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+
+        var SESSION_DATA=[]
+        var val1 = [5,10,15];
+        function makeid(length) {
+                var result           = '';
+                var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                var charactersLength = characters.length;
+
+                var aa = [5,10,15];
+                for ( var i = 0; i < length; i++ ) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                alert(result)
+                $.ajax({
+                    type: "POST",
+                    url: 'api-upload/1',
+                    data:{ 'num1' : JSON.stringify(val1),
+                    'csrfmiddlewaretoken' : '{{ csrf_token }}' },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    dataType: "json",
+                    success: function (response) {
+                        // any process in data
+                        val1 = response.key2
+                        alert("successfull"+val1)
+                    },
+                    failure: function () {
+                        alert("failure");
+                    }
+                });
+            }
+            
+            
+    </script>
+
 </body>
 </html>

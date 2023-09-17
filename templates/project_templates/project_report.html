@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image and PDF Editor</title>
+    <!-- Include Bootstrap CSS (link to the CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Image and PDF Editor</h1>
+        <div class="mb-3">
+            <input type="file" id="image-input" accept="image/*">
+            <button id="load-image">Load Image</button>
+        </div>
+        <div class="mb-3">
+            <input type="file" id="pdf-input" accept="application/pdf">
+            <button id="load-pdf">Load PDF</button>
+        </div>
+        <div class="mb-3">
+            <div id="editor-container">
+                <!-- CKEditor will be initialized here -->
+                <div id="ckeditor-editor"></div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <button id="draw-line">Draw Line</button>
+            <button id="highlight-text">Highlight Text</button>
+            <button id="save">Save</button>
+        </div>
+        <canvas id="editor" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Include Bootstrap JS (you can link to the CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.2/classic/ckeditor.js"></script>
+    <!-- Include PDF.js library (link to the CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.js"></script>
+    <style>
+        /* Your CSS styles for the editor go here */
+        #editor-container {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+    </style>
+
+    <script>
+        // Your JavaScript code for the editor goes here
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CKEditor (ensure proper CKEditor setup)
+            ClassicEditor
+                .create(document.querySelector('#ckeditor-editor'))
+                .then(editor => {
+                    console.log('CKEditor was initialized', editor);
+                })
+                .catch(error => {
+                    console.error('CKEditor initialization failed', error);
+                });
+
+            // Initialize canvas and image variables
+            const editorCanvas = document.getElementById('editor');
+            const ctx = editorCanvas.getContext('2d');
+            let image = null;
+
+            // Function to load an image
+            function loadImage() {
+                alert('1')
+                const imageInput = document.getElementById('image-input');
+                imageInput.click();
+
+                imageInput.addEventListener('change', () => {
+                    const file = imageInput.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const img = new Image();
+                            img.src = reader.result;
+                            img.onload = () => {
+                                ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+                                ctx.drawImage(img, 0, 0, editorCanvas.width, editorCanvas.height);
+                                image = img;
+                            };
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Please select a valid image file.');
+                    }
+                });
+            }
+
+            // Function to load a PDF
+            function loadPDF() {
+                const pdfInput = document.getElementById('pdf-input');
+                pdfInput.click();
+
+                pdfInput.addEventListener('change', () => {
+                    const file = pdfInput.files[0];
+                    if (file && file.type === 'application/pdf') {
+                        // Load and render PDF using PDF.js (requires PDF.js library)
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const pdfData = new Uint8Array(reader.result);
+                            // Define the function to render the PDF using PDF.js
+                            function renderPDF(data) {
+                                pdfjsLib.getDocument({ data: data }).promise.then(pdfDoc => {
+                                    const numPages = pdfDoc.numPages;
+                                    const scale = 1.5;
+                                    const canvas = document.createElement('canvas');
+                                    const context = canvas.getContext('2d');
+
+                                    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                                        pdfDoc.getPage(pageNum).then(page => {
+                                            const viewport = page.getViewport({ scale: scale });
+                                            canvas.width = viewport.width;
+                                            canvas.height = viewport.height;
+
+                                            const renderContext = {
+                                                canvasContext: context,
+                                                viewport: viewport,
+                                            };
+
+                                            page.render(renderContext).promise.then(() => {
+                                                // Clear the canvas before rendering each page
+                                                if (pageNum === 1) {
+                                                    ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+                                                }
+                                                ctx.drawImage(canvas, 0, 0);
+                                            });
+                                        });
+                                    }
+                                });
+                            }
+                            renderPDF(pdfData);
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        alert('Please select a valid PDF file.');
+                    }
+                });
+            }
+
+            // Function to draw a line
+            function drawLine() {
+                // Get the canvas context
+                const ctx = editorCanvas.getContext('2d');
+
+                // Set line properties (e.g., color, thickness)
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+
+                // Start drawing when the mouse is pressed
+                editorCanvas.addEventListener('mousedown', startDrawing);
+
+                // Stop drawing when the mouse is released
+                editorCanvas.addEventListener('mouseup', stopDrawing);
+
+                let isDrawing = false;
+
+                function startDrawing(event) {
+                    isDrawing = true;
+                    ctx.beginPath();
+                    ctx.moveTo(event.clientX - editorCanvas.getBoundingClientRect().left, event.clientY - editorCanvas.getBoundingClientRect().top);
+                }
+
+                function stopDrawing() {
+                    isDrawing = false;
+                    ctx.closePath();
+                }
+
+                // Continue drawing as the mouse moves
+                editorCanvas.addEventListener('mousemove', draw);
+
+                function draw(event) {
+                    if (!isDrawing) return;
+                    ctx.lineTo(event.clientX - editorCanvas.getBoundingClientRect().left, event.clientY - editorCanvas.getBoundingClientRect().top);
+                    ctx.stroke();
+                }
+            }
+
+            // Function to save the editor content
+            function saveEditor() {
+                // If you're editing an image
+                if (image) {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = editorCanvas.width;
+                    canvas.height = editorCanvas.height;
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                    // You can save the edited image as a data URL or perform further processing (e.g., upload to a server)
+                    const editedImageDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+
+                    // To save as a file, you would need server-side code, such as Node.js or PHP, to handle the file creation and download.
+                    // On the client-side, you can create a download link like this:
+                    const a = document.createElement('a');
+                    a.href = editedImageDataUrl;
+                    a.download = 'edited_image.jpg';
+                    a.click();
+                }
+
+                // If you're editing a PDF (using PDF.js), you would need to implement PDF saving logic.
+                // This typically involves generating a new PDF with the edited content and downloading it.
+                if (editorCanvas.toBlob) {
+                    // Convert the edited canvas to a Blob
+                    editorCanvas.toBlob(function (blob) {
+                        if (blob) {
+                            // Create a new Blob URL for the edited PDF
+                            const blobUrl = URL.createObjectURL(blob);
+
+                            // Create a download link for the edited PDF
+                            const a = document.createElement('a');
+                            a.href = blobUrl;
+                            a.download = 'edited_pdf.pdf';
+                            a.click();
+
+                            // Clean up the Blob URL
+                            URL.revokeObjectURL(blobUrl);
+                        } else {
+                            alert('Error saving PDF.');
+                        }
+                    }, 'application/pdf');
+                } else {
+                    alert('Your browser does not support saving PDFs.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
