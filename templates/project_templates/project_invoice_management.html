@@ -1,0 +1,195 @@
+        <!--Invoice Management-->
+        <div id="invoice_management" style="display: none;">
+            <h3>Invoice Management</h3>
+        
+            <!-- Invoice Receipt and Review Form -->
+            <form id="invoiceReceiptForm">
+                <div class="form-group">
+                    <label for="invoiceSupplier">Supplier:</label>
+                    <input type="text" class="form-control" id="invoiceSupplier" placeholder="Enter Supplier Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceAmount">Invoice Amount:</label>
+                    <input type="number" class="form-control" id="invoiceAmount" placeholder="Enter Invoice Amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceStatus">Status:</label>
+                    <select class="form-control" id="invoiceStatus">
+                        <option value="Pending Review">Pending Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Receive Invoice</button>
+            </form>
+        
+            <!-- Invoice List -->
+            <h4>Invoices</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Supplier</th>
+                        <th>Invoice Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceList">
+                    <!-- Display invoices here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Edit Invoice Modal -->
+        <div class="modal fade" id="editInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editInvoiceModalLabel">Edit Invoice</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit Invoice Form -->
+                        <form id="editInvoiceForm">
+                            <div class="form-group">
+                                <label for="editInvoiceSupplier">Supplier:</label>
+                                <input type="text" class="form-control" id="editInvoiceSupplier" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editInvoiceAmount">Invoice Amount:</label>
+                                <input type="number" class="form-control" id="editInvoiceAmount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editInvoiceStatus">Status:</label>
+                                <select class="form-control" id="editInvoiceStatus">
+                                    <option value="Pending Review">Pending Review</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="editInvoiceIndex">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEditedInvoice()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            /* CSS styling for the Invoice Management section */
+            #invoice_management {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+        
+            #invoice_management h3 {
+                color: #343a40;
+            }
+        
+            /* Style form inputs and buttons */
+            .form-group {
+                margin-bottom: 15px;
+            }
+        
+            .form-control {
+                width: 100%;
+            }
+        
+            /* Style the invoice list table */
+            .table {
+                background-color: #fff;
+            }
+        </style>
+        
+        <script>
+            // JavaScript for handling invoice receipt and editing
+            const invoices = []; // Array to store invoices
+        
+            document.getElementById("invoiceReceiptForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent form submission
+                const supplier = document.getElementById("invoiceSupplier").value;
+                const amount = document.getElementById("invoiceAmount").value;
+                const status = document.getElementById("invoiceStatus").value;
+        
+                // Create a new invoice object
+                const newInvoice = {
+                    supplier,
+                    amount,
+                    status,
+                };
+        
+                // Add the new invoice to the array
+                invoices.push(newInvoice);
+        
+                // Update the invoice list table
+                updateInvoiceList();
+        
+                // Clear form inputs
+                document.getElementById("invoiceSupplier").value = "";
+                document.getElementById("invoiceAmount").value = "";
+            });
+        
+            // Function to update the invoice list table
+            function updateInvoiceList() {
+                const invoiceList = document.getElementById("invoiceList");
+                invoiceList.innerHTML = ""; // Clear the existing list
+        
+                // Loop through the invoices array and create rows in the table
+                invoices.forEach((invoice, index) => {
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${invoice.supplier}</td>
+                        <td>${invoice.amount}</td>
+                        <td>${invoice.status}</td>
+                        <td>
+                            <button class="btn btn-info" onclick="editInvoice(${index})">Edit</button>
+                        </td>
+                    `;
+                    invoiceList.appendChild(newRow);
+                });
+            }
+        
+            // Function to edit an invoice
+            function editInvoice(index) {
+                const invoiceToEdit = invoices[index];
+                document.getElementById("editInvoiceSupplier").value = invoiceToEdit.supplier;
+                document.getElementById("editInvoiceAmount").value = invoiceToEdit.amount;
+                document.getElementById("editInvoiceStatus").value = invoiceToEdit.status;
+                document.getElementById("editInvoiceIndex").value = index;
+        
+                // Show the edit modal
+                $("#editInvoiceModal").modal("show");
+            }
+        
+            // Function to save the edited invoice
+            function saveEditedInvoice() {
+                const editedIndex = document.getElementById("editInvoiceIndex").value;
+                const editedInvoice = {
+                    supplier: document.getElementById("editInvoiceSupplier").value,
+                    amount: document.getElementById("editInvoiceAmount").value,
+                    status: document.getElementById("editInvoiceStatus").value,
+                };
+        
+                // Update the invoices array with the edited invoice
+                invoices[editedIndex] = editedInvoice;
+        
+                // Update the invoice list table
+                updateInvoiceList();
+        
+                // Hide the edit modal
+                $("#editInvoiceModal").modal("hide");
+            }
+        
+            // Initial update of the invoice list
+            updateInvoiceList();
+        </script>

@@ -1,0 +1,180 @@
+        <!-- Common Channel (Chat) -->
+        <!-- Include Bootstrap CSS and JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+        <!-- Include Emoji Picker -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@3.0.1/emojiPicker.css">
+        <div id="chat" style="display: none;">
+            <h2>Common Channel (Chat)</h2>
+            <div class="chat-box">
+                <!-- Chat messages will be displayed here -->
+            </div>
+    
+            <!-- Chat Input Form -->
+            <form id="chatForm">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatMessage" placeholder="Type your message...">
+                    <input type="file" id="fileInput" style="display: none;" accept="image/*">
+                    <button type="button" class="btn btn-primary" id="emojiButton">😀</button>
+                    <button type="button" class="btn btn-primary" id="fileButton">📎</button>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </div>
+    
+        <!-- Include Emoji Picker Script -->
+        <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@3.0.1/emojiPicker.js"></script>
+    
+        <script>
+            // Initialize Emoji Picker
+            const emojiButton = document.getElementById("emojiButton");
+            const chatMessageInput = document.getElementById("chatMessage");
+            const emojiPicker = new EmojiPicker();
+            emojiPicker.init({
+                position: 'top-start',
+                size: '320px',
+                theme: 'dark',
+            });
+            emojiButton.addEventListener("click", () => {
+                emojiPicker.togglePicker(chatMessageInput);
+            });
+    
+            // Function to append a new chat message to the chat box
+            function appendMessage(sender, content) {
+                const chatBox = document.querySelector(".chat-box");
+                const message = document.createElement("div");
+                message.classList.add("message");
+                message.innerHTML = `
+                    <p class="message-sender">${sender}:</p>
+                    <p class="message-content">${content}</p>
+                `;
+                chatBox.appendChild(message);
+                // Scroll to the bottom of the chat box to show the latest message
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+    
+            // Function to handle file upload
+            function handleFileUpload(files) {
+                const file = files[0]; // Get the first selected file
+                if (file && file.type.startsWith("image/")) {
+                    // Display the image in the chat
+                    const imageUrl = URL.createObjectURL(file);
+                    const img = document.createElement("img");
+                    img.src = imageUrl;
+                    appendMessage("You", img.outerHTML);
+                }
+            }
+    
+            // Handle file input change
+            const fileInput = document.getElementById("fileInput");
+            fileInput.addEventListener("change", () => {
+                handleFileUpload(fileInput.files);
+            });
+    
+            // Submit chat message when the form is submitted
+            const chatForm = document.getElementById("chatForm");
+            chatForm.addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent the form from submitting traditionally
+                const messageContent = chatMessageInput.value;
+                if (messageContent.trim() !== "") {
+                    appendMessage("You", messageContent); // Display the user's own message
+                    chatMessageInput.value = ""; // Clear the input field
+                    // Simulate a response after a short delay (for demonstration)
+                    setTimeout(function () {
+                        appendMessage("User B", "I received your message!");
+                    }, 1000);
+                }
+            });
+    
+            // File button click handler
+            const fileButton = document.getElementById("fileButton");
+            fileButton.addEventListener("click", () => {
+                fileInput.click();
+            });
+        </script>
+        
+                    <!-- User's Projects -->
+                    <!-- Single Project Description -->
+                    <div id="projects" style="display: none;">
+                        <h2>Your Projects</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Project Card -->
+                                <div class="project-card">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <!-- Project Title -->
+                                            <h5 class="card-title">Project 1: Construction of Office Building</h5>
+                                            
+                                            <!-- Project Description -->
+                                            <p class="card-text">
+                                                <strong>Description:</strong>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in urna quis ex venenatis eleifend.
+                                                Fusce auctor elit at turpis vehicula, at posuere ex eleifend. Nulla facilisi. Donec non facilisis purus.
+                                            </p>
+                                            
+                                            <!-- Team Members -->
+                                            <p class="card-text">
+                                                <strong>Team Members:</strong>
+                                                John Doe (Project Manager), Sarah Smith (Architect), Michael Johnson (Engineer)
+                                            </p>
+                                            
+                                            <!-- Project Actions or Links -->
+                                            <div class="project-actions">
+                                                <a href="#" class="btn btn-primary">View Details</a>
+                                                <a href="#" class="btn btn-secondary">Edit Project</a>
+                                                <a href="#" class="btn btn-danger">Delete Project</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Add more project cards as needed -->
+                            </div>
+                        </div>
+                    </div>
+        
+        
+                <!-- Team Members -->
+                    <div id="team" style="display: none;">
+                        <h2>Your Team Members</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Team Member Card -->
+                                <div class="team-member-card">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <!-- Team Member Name -->
+                                            <h5 class="card-title">John Doe</h5>
+                                            
+                                            <!-- Team Member Role -->
+                                            <p class="card-text">
+                                                <strong>Role:</strong> Developer
+                                            </p>
+                                            
+                                            <!-- Team Member Email -->
+                                            <p class="card-text">
+                                                <strong>Email:</strong> john@example.com
+                                            </p>
+                                            
+                                            <!-- Team Member Contact -->
+                                            <p class="card-text">
+                                                <strong>Contact:</strong> +1 (123) 456-7890
+                                            </p>
+                                            
+                                            <!-- Team Member Bio -->
+                                            <p class="card-text">
+                                                <strong>Bio:</strong>
+                                                John is an experienced developer with a passion for creating innovative solutions. He specializes in web development and has a track record of delivering high-quality projects on time.
+                                            </p>
+                                            
+                                            <!-- Additional Team Member Details -->
+                                            <div class="team-member-details">
+                                                <a href="#" class="btn btn-primary">View Profile</a>
+                                                <a href="#" class="btn btn-secondary">Send Message</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Add more team member cards as needed -->
+                            </div>
+                        </div>
+                    </div>

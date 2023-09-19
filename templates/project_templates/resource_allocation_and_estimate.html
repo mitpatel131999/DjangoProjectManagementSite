@@ -1,0 +1,429 @@
+<!-- Resource Management Section -->
+<div id="resource" style="display: none;">
+    <h2>Resource Management</h2>
+    <div class="resource-content">
+        <!-- Labor Cost Estimation Table -->
+        <div class="labor-cost">
+            <h3>Labor Cost Estimation</h3>
+            <table class="table table-striped" id="laborCostTable">
+                <thead>
+                    <tr>
+                        <th>Work Package Number</th>
+                        <th>Skilled Labor</th>
+                        <th>Unskilled Labor</th>
+                        <th>Rate Skilled</th>
+                        <th>Rate Unskilled</th>
+                        <th>Total Cost</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="form-control activity-name">
+                                <option value="WP-001">WP-001</option>
+                                <option value="WP-002">WP-002</option>
+                                <option value="WP-003">WP-003</option>
+                                <!-- Add more Work Package Numbers as needed -->
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control skilled-labor" value="0" /></td>
+                        <td><input type="number" class="form-control unskilled-labor" value="0" /></td>
+                        <td><input type="number" class="form-control rate-skilled" value="0" /></td>
+                        <td><input type="number" class="form-control rate-unskilled" value="0" /></td>
+                        <td class="total-cost">0</td>
+                        <td>
+                            <button class="btn btn-danger remove-row">Remove</button>
+                        </td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+            <button class="btn btn-primary add-row">Add Row</button>
+        </div>
+
+        <!-- Material Cost Estimation Table -->
+        <div class="material-cost">
+            <h3>Material Cost Estimation</h3>
+            <table class="table table-striped" id="materialCostTable">
+                <thead>
+                    <tr>
+                        <th>Work Package Number</th>
+                        <th>Cement</th>
+                        <th>Brick</th>
+                        <th>Sand</th>
+                        <th>Miscellaneous</th>
+                        <th>Total Cost</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="form-control activity-name">
+                                <option value="WP-001">WP-001</option>
+                                <option value="WP-002">WP-002</option>
+                                <option value="WP-003">WP-003</option>
+                                <!-- Add more Work Package Numbers as needed -->
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control cement" value="0" /></td>
+                        <td><input type="number" class="form-control brick" value="0" /></td>
+                        <td><input type="number" class="form-control sand" value="0" /></td>
+                        <td><input type="number" class="form-control miscellaneous" value="0" /></td>
+                        <td class="total-cost">0</td>
+                        <td>
+                            <button class="btn btn-danger remove-row">Remove</button>
+                        </td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+            <button class="btn btn-primary add-row">Add Row</button>
+        </div>
+
+        <!-- Equipment Cost Estimation Table -->
+        <div class="equipment-cost">
+            <h3>Equipment Cost Estimation</h3>
+            <table class="table table-striped" id="equipmentCostTable">
+                <thead>
+                    <tr>
+                        <th>Work Package Number</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>H</th>
+                        <th>I</th>
+                        <th>J</th>
+                        <th>K</th>
+                        <th>Total Cost</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select class="form-control activity-name">
+                                <option value="WP-001">WP-001</option>
+                                <option value="WP-002">WP-002</option>
+                                <option value="WP-003">WP-003</option>
+                                <!-- Add more Work Package Numbers as needed -->
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control equipment-a" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-b" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-c" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-d" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-e" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-f" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-g" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-h" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-i" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-j" value="0" /></td>
+                        <td><input type="number" class="form-control equipment-k" value="0" /></td>
+                        <td class="total-cost">0</td>
+                        <td>
+                            <button class="btn btn-danger remove-row">Remove</button>
+                        </td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+            <button class="btn btn-primary add-row">Add Row</button>
+        </div>
+    </div>
+</div>
+
+<!-- Include jQuery library -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Your JavaScript -->
+<script>
+    $(document).ready(function () {
+        // Define arrays to store table data
+        let laborData = [];
+        let materialData = [];
+        let equipmentData = [];
+
+        // Calculate total cost and handle row removal
+        function updateTotalCost(table) {
+            table.find("tbody tr").each(function () {
+                let total = 0;
+                $(this)
+                    .find("input[type=number]")
+                    .each(function () {
+                        total += parseFloat($(this).val()) || 0;
+                    });
+                $(this).find(".total-cost").text(total.toFixed(2));
+            });
+        }
+
+        $("body").on("input", "input[type=number]", function () {
+            updateTotalCost($(this).closest("table"));
+        });
+
+        $("body").on("click", ".remove-row", function () {
+            const table = $(this).closest("table");
+            const row = $(this).closest("tr");
+            const data = getDataArray(table);
+
+            // Remove the row from the data array
+            data.splice(row.index(), 1);
+
+            // Update the table and total cost
+            updateTableFromData(table, data);
+            updateTotalCost(table);
+        });
+
+        // Add Row button click handler for Labor Cost Estimation
+        $("body").on("click", ".labor-cost .add-row", function () {
+            addRowToLaborTable();
+        });
+
+        // Add Row button click handler for Material Cost Estimation
+        $("body").on("click", ".material-cost .add-row", function () {
+            addRowToMaterialTable();
+        });
+
+        // Add Row button click handler for Equipment Cost Estimation
+        $("body").on("click", ".equipment-cost .add-row", function () {
+            addRowToEquipmentTable();
+        });
+
+        // Initial calculation of total cost
+        $("input[type=number]").trigger("input");
+
+        // Function to add a new row to the labor cost estimation table
+        function addRowToLaborTable() {
+            const table = $("#laborCostTable");
+            const newRow = table.find("tbody")[0].insertRow(-1);
+
+            // Define the column types and class names for this table
+            const columnData = [
+                { type: "select", class: "form-control activity-name" },
+                { type: "number", class: "form-control skilled-labor", value: 0 },
+                { type: "number", class: "form-control unskilled-labor", value: 0 },
+                { type: "number", class: "form-control rate-skilled", value: 0 },
+                { type: "number", class: "form-control rate-unskilled", value: 0 },
+                { type: "text", class: "total-cost", value: "0.00", readOnly: true },
+                { type: "button", class: "btn btn-danger remove-row", text: "Remove" },
+            ];
+
+            // Create cells for the row based on column data
+            columnData.forEach((column, index) => {
+                const cell = newRow.insertCell(index);
+                const input = document.createElement(column.type);
+
+                // Set input attributes and class
+                input.className = column.class;
+                if (column.type === "number") {
+                    input.type = "number"; // Change input type to "number"
+                }
+                if (column.value !== undefined) input.value = column.value;
+                if (column.readOnly) input.readOnly = true;
+                if (column.text !== undefined) input.textContent = column.text;
+
+                cell.appendChild(input);
+
+                if (column.type === "button") {
+                    input.addEventListener("click", function () {
+                        // Remove the row from the data array
+                        laborData.splice(newRow.rowIndex - 1, 1);
+                        updateTableFromData(table, laborData);
+                        updateTotalCost(table);
+                    });
+                }
+            });
+
+            // Update total cost when any input changes
+            newRow.addEventListener("input", function () {
+                updateTotalCost(table);
+            });
+
+            // Add the row data to the array
+            laborData.push({
+                activityName: "",
+                skilledLabor: 0,
+                unskilledLabor: 0,
+                rateSkilled: 0,
+                rateUnskilled: 0,
+            });
+        }
+
+        // Function to add a new row to the material cost estimation table
+        function addRowToMaterialTable() {
+            const table = $("#materialCostTable");
+            const newRow = table.find("tbody")[0].insertRow(-1);
+
+            // Define the column types and class names for this table
+            const columnData = [
+                { type: "select", class: "form-control activity-name" },
+                { type: "number", class: "form-control cement", value: 0 },
+                { type: "number", class: "form-control brick", value: 0 },
+                { type: "number", class: "form-control sand", value: 0 },
+                { type: "number", class: "form-control miscellaneous", value: 0 },
+                { type: "text", class: "total-cost", value: "0.00", readOnly: true },
+                { type: "button", class: "btn btn-danger remove-row", text: "Remove" },
+            ];
+
+            // Create cells for the row based on column data
+            columnData.forEach((column, index) => {
+                const cell = newRow.insertCell(index);
+                const input = document.createElement(column.type);
+
+                // Set input attributes and class
+                input.className = column.class;
+                if (column.type === "number") {
+                    input.type = "number"; // Change input type to "number"
+                }
+                if (column.value !== undefined) input.value = column.value;
+                if (column.readOnly) input.readOnly = true;
+                if (column.text !== undefined) input.textContent = column.text;
+
+                cell.appendChild(input);
+
+                if (column.type === "button") {
+                    input.addEventListener("click", function () {
+                        // Remove the row from the data array
+                        materialData.splice(newRow.rowIndex - 1, 1);
+                        updateTableFromData(table, materialData);
+                        updateTotalCost(table);
+                    });
+                }
+            });
+
+            // Update total cost when any input changes
+            newRow.addEventListener("input", function () {
+                updateTotalCost(table);
+            });
+
+            // Add the row data to the array
+            materialData.push({
+                activityName: "",
+                cement: 0,
+                brick: 0,
+                sand: 0,
+                miscellaneous: 0,
+            });
+        }
+
+        // Function to add a new row to the equipment cost estimation table
+        function addRowToEquipmentTable() {
+            const table = $("#equipmentCostTable");
+            const newRow = table.find("tbody")[0].insertRow(-1);
+
+            // Define the column types and class names for this table
+            const columnData = [
+                { type: "select", class: "form-control activity-name" },
+                { type: "number", class: "form-control equipment-a", value: 0 },
+                { type: "number", class: "form-control equipment-b", value: 0 },
+                { type: "number", class: "form-control equipment-c", value: 0 },
+                { type: "number", class: "form-control equipment-d", value: 0 },
+                { type: "number", class: "form-control equipment-e", value: 0 },
+                { type: "number", class: "form-control equipment-f", value: 0 },
+                { type: "number", class: "form-control equipment-g", value: 0 },
+                { type: "number", class: "form-control equipment-h", value: 0 },
+                { type: "number", class: "form-control equipment-i", value: 0 },
+                { type: "number", class: "form-control equipment-j", value: 0 },
+                { type: "number", class: "form-control equipment-k", value: 0 },
+                { type: "text", class: "total-cost", value: "0.00", readOnly: true },
+                { type: "button", class: "btn btn-danger remove-row", text: "Remove" },
+            ];
+
+            // Create cells for the row based on column data
+            columnData.forEach((column, index) => {
+                const cell = newRow.insertCell(index);
+                const input = document.createElement(column.type);
+
+                // Set input attributes and class
+                input.className = column.class;
+                if (column.type === "number") {
+                    input.type = "number"; // Change input type to "number"
+                }
+                if (column.value !== undefined) input.value = column.value;
+                if (column.readOnly) input.readOnly = true;
+                if (column.text !== undefined) input.textContent = column.text;
+
+                cell.appendChild(input);
+
+                if (column.type === "button") {
+                    input.addEventListener("click", function () {
+                        // Remove the row from the data array
+                        equipmentData.splice(newRow.rowIndex - 1, 1);
+                        updateTableFromData(table, equipmentData);
+                        updateTotalCost(table);
+                    });
+                }
+            });
+
+            // Update total cost when any input changes
+            newRow.addEventListener("input", function () {
+                updateTotalCost(table);
+            });
+
+            // Add the row data to the array
+            equipmentData.push({
+                activityName: "",
+                equipmentA: 0,
+                equipmentB: 0,
+                equipmentC: 0,
+                equipmentD: 0,
+                equipmentE: 0,
+                equipmentF: 0,
+                equipmentG: 0,
+                equipmentH: 0,
+                equipmentI: 0,
+                equipmentJ: 0,
+                equipmentK: 0,
+            });
+        }
+
+        // Function to update a table from its data array
+        function updateTableFromData(table, data) {
+            const tbody = table.find("tbody");
+            tbody.empty();
+
+            data.forEach(function (rowData) {
+                const newRow = tbody[0].insertRow(-1);
+
+                for (const key in rowData) {
+                    if (rowData.hasOwnProperty(key)) {
+                        const cell = newRow.insertCell();
+                        const input = document.createElement("input");
+                        input.type = "number"; // Change input type to "number"
+                        input.className = "form-control";
+                        input.value = rowData[key];
+                        cell.appendChild(input);
+                    }
+                }
+
+                // Add the remove button
+                const removeCell = newRow.insertCell();
+                const removeButton = document.createElement("button");
+                removeButton.className = "btn btn-danger remove-row";
+                removeButton.textContent = "Remove";
+                removeCell.appendChild(removeButton);
+            });
+        }
+
+        // Function to get data array for a table
+        function getDataArray(table) {
+            if (table.attr("id") === "laborCostTable") {
+                return laborData;
+            } else if (table.attr("id") === "materialCostTable") {
+                return materialData;
+            } else if (table.attr("id") === "equipmentCostTable") {
+                return equipmentData;
+            }
+        }
+
+        // Initialize tables with existing data if available
+        updateTableFromData($("#laborCostTable"), laborData);
+        updateTableFromData($("#materialCostTable"), materialData);
+        updateTableFromData($("#equipmentCostTable"), equipmentData);
+    });
+</script>

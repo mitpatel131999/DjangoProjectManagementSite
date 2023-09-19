@@ -106,26 +106,36 @@ Needs to add security measure in order to match the security
 from django.http import JsonResponse
 import json
 
+class DATA:
+    main_data={
+            'activities':[],
+            'quotations':[],
+            'scheduling':[],
+          }
+main_data=DATA()
+
+
 class ProjectApi:
+    
     def projectApiLoadData(request,id):
-        print('loading the data')
-        return JsonResponse(data)
+        print('loading the data',id)
+        print(main_data.main_data)
+        response = {'server_data' : main_data.main_data}
+        return JsonResponse(response)
     
     def projectApiUpLoadData(request,id):
 
-        print('uploading the data')
+        print('uploading the data',id)
         print(request.method)
         data={}
         if request.method == 'POST':
-            array=request.POST.get('num1')
-            print(array,type(array))
-            data = '{ "data":'+array+'}'
-            print(data , type(data))
-            ar = json.loads(data)
-            print(ar)
-            ar['data'].append('22')
-            print(ar,'updated')
-            response = {'key2' : ar['data']}
+            ajax_data=request.POST.get('ajax_data')
+            print(ajax_data,type(ajax_data))
+            ar = json.loads(ajax_data)
+            print('ar',ar,type(ar))
+            main_data.main_data=ar
+            print('main_data',main_data.main_data)
+            response = {'server_data' : main_data.main_data}
             return JsonResponse(response)
         print(data)
         return JsonResponse(data)
@@ -134,10 +144,15 @@ class ProjectApi:
 '''
 Successfully manage to send request from web page get server and also able to return it properly 
 '''
+
     
 class Project:
     def project(request,id):
-        return  render(request,'project_templates/project.html')
+        main_data={
+            'activities':[],
+          }
+        send_web={ 'id':id}
+        return  render(request,'project_templates/project.html',send_web)
 
     def project_introduction(request,id):
         return  render(request,'project_templates/project_introduction.html')

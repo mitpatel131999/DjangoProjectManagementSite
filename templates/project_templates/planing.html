@@ -1,0 +1,241 @@
+<!-- Planning Section -->
+<!-- Planning -->
+<div id="planning" style="display: none;">
+    <h2>Planning</h2>
+    <div class="planning-content">
+        <!-- Task Entry Form -->
+        <div class="task-entry">
+            <h3>Add New Task</h3>
+            <form id="taskForm">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="taskId">Task ID</label>
+                        <input type="text" class="form-control" id="taskId" placeholder="Task ID">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="taskShortName">Short Name</label>
+                        <input type="text" class="form-control" id="taskShortName" placeholder="Short Name">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="taskDescription">Description</label>
+                        <input type="text" class="form-control" id="taskDescription" placeholder="Description">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" id="addTaskButton">Add Task</button>
+            </form>
+        </div>
+        <br>
+        <!-- Task Table -->
+        <div class="task-table">
+            <h3>Task List</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Short Name</th>
+                        <th>Description</th>
+                        <th>Actions</th> <!-- New column for update and delete buttons -->
+                    </tr>
+                </thead>
+                <tbody id="taskList">
+                    <!-- Task entries will be added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Modal for Editing Task -->
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for editing task details -->
+                <form id="editTaskForm">
+                    <div class="form-group">
+                        <label for="editTaskShortName">Short Name</label>
+                        <input type="text" class="form-control" id="editTaskShortName" placeholder="Short Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskDescription">Description</label>
+                        <input type="text" class="form-control" id="editTaskDescription" placeholder="Description">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveEditButton">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize tasks array with data from api_data.activities
+    function planing_init(){
+        alert(JSON.stringify(api_data));
+        load_data();
+        planning_task= api_data.activities;
+        planing_preload();
+    }
+    // Function to add a new task to the task table
+    function planing_preload(){
+
+        for (let i = 0; i < api_data.activities.length; i++) {
+            const taskList = document.getElementById("taskList");
+                const newRow = taskList.insertRow(-1);
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                const cell3 = newRow.insertCell(2);
+                const cell4 = newRow.insertCell(3); // New cell for action buttons
+                cell1.innerHTML = api_data.activities[i].id;
+                cell2.innerHTML = api_data.activities[i].shortName;
+                cell3.innerHTML = api_data.activities[i].description;
+
+                // Create update and delete buttons
+                const updateButton = document.createElement("button");
+                updateButton.innerHTML = "Update";
+                updateButton.className = "btn btn-info btn-sm";
+                updateButton.addEventListener("click", function () {
+                    // Handle update button click by opening the edit modal
+                    openEditModal(id, shortName, description);
+                });
+
+                const deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "Delete";
+                deleteButton.className = "btn btn-danger btn-sm";
+                deleteButton.addEventListener("click", function () {
+                    // Find the index of the task in the planning_task array
+
+
+                    // Remove the row from the table
+                    newRow.remove(); // This directly removes the row from the DOM
+                });
+
+                // Append buttons to the action cell
+                cell4.appendChild(updateButton);
+                cell4.appendChild(deleteButton);
+
+                }
+            }
+    
+    function addTaskToTable(id, shortName, description) {
+        
+        const taskList = document.getElementById("taskList");
+        const newRow = taskList.insertRow(-1);
+        const cell1 = newRow.insertCell(0);
+        const cell2 = newRow.insertCell(1);
+        const cell3 = newRow.insertCell(2);
+        const cell4 = newRow.insertCell(3); // New cell for action buttons
+        cell1.innerHTML = id;
+        cell2.innerHTML = shortName;
+        cell3.innerHTML = description;
+
+        // Create update and delete buttons
+        const updateButton = document.createElement("button");
+        updateButton.innerHTML = "Update";
+        updateButton.className = "btn btn-info btn-sm";
+        updateButton.addEventListener("click", function () {
+            // Handle update button click by opening the edit modal
+            openEditModal(id, shortName, description);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "Delete";
+        deleteButton.className = "btn btn-danger btn-sm";
+        deleteButton.addEventListener("click", function () {
+            // Find the index of the task in the planning_task array
+            const taskIndex = planning_task.findIndex(task => task.id === id);
+
+            if (taskIndex !== -1) {
+                // Remove the task from the planning_task array
+                planning_task.splice(taskIndex, 1);
+                // Update api_data.activities
+                api_data.activities = planning_task;
+            }
+
+            // Remove the row from the table
+            newRow.remove(); // This directly removes the row from the DOM
+
+            // Optional: Hide the edit modal if it's open
+            // $('#editTaskModal').modal('hide');
+        });
+
+        // Append buttons to the action cell
+        cell4.appendChild(updateButton);
+        cell4.appendChild(deleteButton);
+
+        // Add the task to the planning_task array in JSON format
+        planning_task.push({ id, shortName, description });
+        api_data.activities = planning_task; // Update api_data.activities
+    }
+
+    // Function to open the edit modal with task details
+    function openEditModal(id, shortName, description) {
+        const editTaskShortNameInput = document.getElementById("editTaskShortName");
+        const editTaskDescriptionInput = document.getElementById("editTaskDescription");
+
+        // Set the input values to the current task details
+        editTaskShortNameInput.value = shortName;
+        editTaskDescriptionInput.value = description;
+
+        // Save changes when the "Save Changes" button is clicked
+        const saveEditButton = document.getElementById("saveEditButton");
+        saveEditButton.addEventListener("click", function () {
+            // Get the updated values from the input fields
+            const updatedShortName = editTaskShortNameInput.value;
+            const updatedDescription = editTaskDescriptionInput.value;
+
+            // Update the task in the planning_task array
+            planning_task = planning_task.map(task => {
+                if (task.id === id) {
+                    task.shortName = updatedShortName;
+                    task.description = updatedDescription;
+                }
+                return task;
+            });
+
+            // Update api_data.activities
+            api_data.activities = planning_task;
+
+            // Update the table row with the new values
+            const taskList = document.getElementById("taskList");
+            const rowIndex = Array.from(taskList.rows).findIndex(row => row.cells[0].innerHTML === id);
+            if (rowIndex !== -1) {
+                taskList.rows[rowIndex].cells[1].innerHTML = updatedShortName;
+                taskList.rows[rowIndex].cells[2].innerHTML = updatedDescription;
+            }
+
+            // Close the edit modal
+            $('#editTaskModal').modal('hide');
+        });
+
+        // Open the edit modal
+        $('#editTaskModal').modal('show');
+    }
+
+    // Submit task when the "Add Task" button is clicked
+    const addTaskButton = document.getElementById("addTaskButton");
+    addTaskButton.addEventListener("click", function () {
+        const taskIdInput = document.getElementById("taskId");
+        const taskShortNameInput = document.getElementById("taskShortName");
+        const taskDescriptionInput = document.getElementById("taskDescription");
+        const taskId = taskIdInput.value;
+        const taskShortName = taskShortNameInput.value;
+        const taskDescription = taskDescriptionInput.value;
+        if (taskId.trim() !== "" && taskShortName.trim() !== "" && taskDescription.trim() !== "") {
+            addTaskToTable(taskId, taskShortName, taskDescription);
+            // Clear the input fields
+            taskIdInput.value = "";
+            taskShortNameInput.value = "";
+            taskDescriptionInput.value = "";
+        }
+        
+    });
+</script>

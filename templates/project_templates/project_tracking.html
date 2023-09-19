@@ -1,0 +1,243 @@
+        <!-- Project Tracking Section -->
+        <div id="tracking" style="display: none;">
+            <h2>Project Tracking</h2>
+            <div id="activity-list">
+                <!-- Sample Activity 1 -->
+                <div class="activity">
+                    <h4>Activity 1: Flooring</h4>
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Progress (%)</th>
+                                <th>Labor Cost</th>
+                                <th>Equipment Cost</th>
+                                <th>Material Cost</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-1">
+                            <!-- Sample Data Rows -->
+                            <tr>
+                                <td><input type="date" id="date-1-1" /></td>
+                                <td><input type="number" id="progress-1-1" min="0" max="100" /></td>
+                                <td><input type="number" id="labor-cost-1-1" min="0" /></td>
+                                <td><input type="number" id="equipment-cost-1-1" min="0" /></td>
+                                <td><input type="number" id="material-cost-1-1" min="0" /></td>
+                                <td><button onclick="addTransaction(1)">ADD</button></td>
+                            </tr>
+                            <!-- Add more data rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+        
+                <!-- Sample Activity 2 -->
+                <!-- Add more activities with similar structure as needed -->
+            </div>
+        
+            <!-- Show All Transactions -->
+            <h4>All Transactions</h4>
+            <table id="all-transactions" class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Activity</th>
+                        <th>Progress (%)</th>
+                        <th>Labor Cost</th>
+                        <th>Equipment Cost</th>
+                        <th>Material Cost</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="transactions-1">
+                    <!-- Sample Data Rows -->
+                    <tr>
+                        <td><input type="date" id="date-1-1" /></td>
+                        <td><input type="number" id="progress-1-1" min="0" max="100" /></td>
+                        <td><input type="number" id="labor-cost-1-1" min="0" /></td>
+                        <td><input type="number" id="equipment-cost-1-1" min="0" /></td>
+                        <td><input type="number" id="material-cost-1-1" min="0" /></td>
+                        <td><button onclick="updateTransaction(1, 1)">Update</button></td>
+                        <td><button onclick="deleteTransaction(1, 1)">Delete</button></td>
+                    </tr>
+                    <!-- Add more data rows as needed -->
+                </tbody>
+                <!-- All transactions will be added here dynamically -->
+            </table>
+        
+            <!-- Total Cost and Progress per Activity -->
+            <h4>Total Cost and Progress per Activity</h4>
+            <table id="total-progress-cost" class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Progress (%)</th>
+                        <th>Total Labor Cost</th>
+                        <th>Total Equipment Cost</th>
+                        <th>Total Material Cost</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <!-- Total cost and progress per activity will be added here dynamically -->
+            </table>
+        
+            <!-- Custom CSS for styling -->
+            <style>
+                /* Add custom CSS here */
+                .activity {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    margin-bottom: 20px;
+                    border-radius: 5px;
+                }
+
+                .activity-table {
+                    width: 100%;
+                }
+
+                .activity-table th,
+                .activity-table td {
+                    padding: 8px;
+                    text-align: center;
+                }
+
+                .btn {
+                    padding: 5px 10px;
+                }
+
+                .update-delete-btns {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .transaction-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 5px;
+                }
+
+                .transaction-row input[type="date"],
+                .transaction-row input[type="number"] {
+                    width: 100%;
+                    max-width: 150px;
+                }
+
+                /* Add more custom CSS as needed */
+            </style>
+
+            <!-- Custom JavaScript -->
+            <script>
+                // Define an object to store activity data, including transactions
+                const activities = {};
+
+                // Function to add a new activity
+                function addActivity(activityId, activityName) {
+                    // Initialize an empty activity object
+                    activities[activityId] = {
+                        name: activityName,
+                        transactions: [],
+                    };
+
+                    // Create the activity HTML structure using Bootstrap classes
+                    const activityList = document.getElementById("activity-list");
+                    const activityDiv = document.createElement("div");
+                    activityDiv.className = "activity";
+                    activityDiv.innerHTML = `
+                        <h3>${activityName}</h3>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary" onclick="addTransaction(${activityId})">Add Transaction</button>
+                        </div>
+                        <table class="table table-bordered activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Progress (%)</th>
+                                    <th>Labor Cost</th>
+                                    <th>Equipment Cost</th>
+                                    <th>Material Cost</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-${activityId}">
+                                <!-- Transaction rows will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    `;
+
+                    activityList.appendChild(activityDiv);
+                }
+
+                // Function to add a new transaction row to an activity
+                function addTransaction(activityId) {
+                    const activity = activities[activityId];
+                    const transactionsTable = document.getElementById(`transactions-${activityId}`);
+
+                    // Create a new transaction object and add it to the activity
+                    const newTransaction = {
+                        date: "",
+                        progress: 0,
+                        laborCost: 0,
+                        equipmentCost: 0,
+                        materialCost: 0,
+                    };
+                    activity.transactions.push(newTransaction);
+
+                    // Get the index of the newly added transaction
+                    const transactionIndex = activity.transactions.length - 1;
+
+                    // Create a new row in the table and populate it with inputs and buttons
+                    const newRow = transactionsTable.insertRow(-1);
+                    newRow.className = "transaction-row";
+                    newRow.innerHTML = `
+                        <td><input type="date" class="form-control" id="date-${activityId}-${transactionIndex}" /></td>
+                        <td><input type="number" class="form-control" id="progress-${activityId}-${transactionIndex}" min="0" max="100" /></td>
+                        <td><input type="number" class="form-control" id="labor-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td><input type="number" class="form-control" id="equipment-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td><input type="number" class="form-control" id="material-cost-${activityId}-${transactionIndex}" min="0" /></td>
+                        <td class="update-delete-btns">
+                            <button class="btn btn-success" onclick="updateTransaction(${activityId}, ${transactionIndex})">Update</button>
+                            <button class="btn btn-danger" onclick="deleteTransaction(${activityId}, ${transactionIndex})">Delete</button>
+                        </td>
+                    `;
+                }
+
+                // Function to update a transaction in an activity
+                function updateTransaction(activityId, transactionIndex) {
+                    const activity = activities[activityId];
+                    const dateInput = document.getElementById(`date-${activityId}-${transactionIndex}`);
+                    const progressInput = document.getElementById(`progress-${activityId}-${transactionIndex}`);
+                    const laborCostInput = document.getElementById(`labor-cost-${activityId}-${transactionIndex}`);
+                    const equipmentCostInput = document.getElementById(`equipment-cost-${activityId}-${transactionIndex}`);
+                    const materialCostInput = document.getElementById(`material-cost-${activityId}-${transactionIndex}`);
+
+                    // Update the transaction object with new data
+                    const transaction = activity.transactions[transactionIndex];
+                    transaction.date = dateInput.value;
+                    transaction.progress = parseInt(progressInput.value);
+                    transaction.laborCost = parseFloat(laborCostInput.value);
+                    transaction.equipmentCost = parseFloat(equipmentCostInput.value);
+                    transaction.materialCost = parseFloat(materialCostInput.value);
+
+                    // Update the table cell with new values (e.g., date and progress)
+                    const dateCell = document.getElementById(`transactions-${activityId}`).rows[transactionIndex].cells[0];
+                    dateCell.textContent = transaction.date;
+
+                    const progressCell = document.getElementById(`transactions-${activityId}`).rows[transactionIndex].cells[1];
+                    progressCell.textContent = transaction.progress + "%";
+                }
+
+                // Function to delete a transaction from an activity
+                function deleteTransaction(activityId, transactionIndex) {
+                    const activity = activities[activityId];
+                    activity.transactions.splice(transactionIndex, 1);
+
+                    // Remove the row from the HTML table
+                    const transactionsTable = document.getElementById(`transactions-${activityId}`);
+                    transactionsTable.deleteRow(transactionIndex);
+                }
+            </script>
+
+            
+        </div>

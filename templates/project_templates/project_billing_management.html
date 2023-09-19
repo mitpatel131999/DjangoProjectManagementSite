@@ -1,0 +1,255 @@
+        <!--Billing Management-->
+        <!-- Billing Management Section -->
+        <!-- Include jsPDF and html2pdf.js scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+        <div id="billing_management" style="display: none;">
+            <h2>Billing Management</h2>
+
+            <!-- Progress Billing -->
+            <div id="progressBilling">
+                <h3>Progress Billing</h3>
+                <form id="progressBillingForm">
+                    <div class="mb-3">
+                        <label for="progressDescription" class="form-label">Progress Description</label>
+                        <input type="text" class="form-control" id="progressDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressAmount" class="form-label">Progress Amount ($)</label>
+                        <input type="number" class="form-control" id="progressAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="progressDetails" class="form-label">Progress Details</label>
+                        <textarea class="form-control" id="progressDetails" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" onclick="generateProgressBillingPDF()">Create Progress Billing</button>
+                </form>
+            </div>
+
+            <!-- Change Orders -->
+            <div id="changeOrders">
+                <h3>Change Orders</h3>
+                <form id="changeOrdersForm">
+                    <div class="mb-3">
+                        <label for="changeOrderDescription" class="form-label">Change Order Description</label>
+                        <input type="text" class="form-control" id="changeOrderDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="changeOrderAmount" class="form-label">Change Order Amount ($)</label>
+                        <input type="number" class="form-control" id="changeOrderAmount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Change Order</button>
+                </form>
+            </div>
+
+            <!-- Client Invoicing -->
+            <div id="clientInvoicing">
+                <h3>Client Invoicing</h3>
+                <form id="clientInvoicingForm">
+                    <div class="mb-3">
+                        <label for="clientInvoiceDescription" class="form-label">Invoice Description</label>
+                        <input type="text" class="form-control" id="clientInvoiceDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clientInvoiceAmount" class="form-label">Invoice Amount ($)</label>
+                        <input type="number" class="form-control" id="clientInvoiceAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clientInvoiceDetails" class="form-label">Invoice Details</label>
+                        <textarea class="form-control" id="clientInvoiceDetails" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Invoice</button>
+                </form>
+            </div>
+
+            <!-- Retainage Management -->
+            <div id="retainageManagement">
+                <h3>Retainage Management</h3>
+                <form id="retainageManagementForm">
+                    <div class="mb-3">
+                        <label for="retainageDescription" class="form-label">Retainage Description</label>
+                        <input type="text" class="form-control" id="retainageDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="retainageAmount" class="form-label">Retainage Amount ($)</label>
+                        <input type="number" class="form-control" id="retainageAmount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Retainage</button>
+                </form>
+            </div>
+
+            <!-- Reporting and Documentation -->
+            <div id="billingReports">
+                <h3>Billing Reports</h3>
+                <p>Download billing reports and documentation:</p>
+                <button class="btn btn-secondary" onclick="generateBillingReport()">Generate Billing Report</button>
+                <a class="btn btn-primary" href="#" download="billing_report.pdf" id="downloadReportLink" style="display: none;">Download Billing Report</a>
+            </div>
+
+            <script>
+                // JavaScript for handling billing management actions
+                const progressBillings = [];
+                const changeOrders = [];
+                const clientInvoices = [];
+                const retainages = [];
+
+                // JavaScript for handling billing management actions
+                // ... (similar arrays for other billing types)
+
+                // Function to display billings on the page
+                function displayBillings(billings, containerId) {
+                    const container = document.getElementById(containerId);
+                    container.innerHTML = "";
+                    billings.forEach((billing, index) => {
+                        const billingDiv = document.createElement("div");
+                        billingDiv.innerHTML = `<strong>${billing.type}:</strong> ${billing.description}, Amount: $${billing.amount.toFixed(2)}<br>`;
+                        container.appendChild(billingDiv);
+                    });
+                }
+
+                // Function to generate a PDF for Progress Billing
+                function generateProgressBillingPDF() {
+                    const progressBillingList = document.getElementById("progressBillingList");
+                    displayBillings(progressBillings, "progressBillingList");
+                    const pdfElement = progressBillingList;
+
+                    const opt = {
+                        margin: 10,
+                        filename: 'progress_billing.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    // Generate PDF
+                    html2pdf()
+                        .from(pdfElement)
+                        .set(opt)
+                        .outputPdf()
+                        .then(function(pdf) {
+                            const pdfBlob = new Blob([pdf], { type: 'application/pdf' });
+                            const pdfUrl = URL.createObjectURL(pdfBlob);
+                            const link = document.createElement('a');
+                            link.href = pdfUrl;
+                            link.download = 'progress_billing.pdf';
+                            link.click();
+                        });
+                }
+
+
+                document.getElementById("progressBillingForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const progressDescription = document.getElementById("progressDescription").value;
+                    const progressAmount = parseFloat(document.getElementById("progressAmount").value);
+                    const progressDetails = document.getElementById("progressDetails").value;
+
+                    if (!progressDescription || isNaN(progressAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const progressBilling = {
+                        description: progressDescription,
+                        amount: progressAmount,
+                        details: progressDetails,
+                    };
+
+                    progressBillings.push(progressBilling);
+
+                    // Display progress billing (you can implement display logic here)
+                    alert(`Progress Billing Created:\nDescription: ${progressBilling.description}\nAmount: $${progressBilling.amount.toFixed(2)}\nDetails: ${progressBilling.details}`);
+
+                    document.getElementById("progressDescription").value = "";
+                    document.getElementById("progressAmount").value = "";
+                    document.getElementById("progressDetails").value = "";
+                });
+
+                document.getElementById("changeOrdersForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const changeOrderDescription = document.getElementById("changeOrderDescription").value;
+                    const changeOrderAmount = parseFloat(document.getElementById("changeOrderAmount").value);
+
+                    if (!changeOrderDescription || isNaN(changeOrderAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const changeOrder = {
+                        description: changeOrderDescription,
+                        amount: changeOrderAmount,
+                    };
+
+                    changeOrders.push(changeOrder);
+
+                    // Display change order (you can implement display logic here)
+                    alert(`Change Order Created:\nDescription: ${changeOrder.description}\nAmount: $${changeOrder.amount.toFixed(2)}`);
+
+                    document.getElementById("changeOrderDescription").value = "";
+                    document.getElementById("changeOrderAmount").value = "";
+                });
+
+                document.getElementById("clientInvoicingForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const clientInvoiceDescription = document.getElementById("clientInvoiceDescription").value;
+                    const clientInvoiceAmount = parseFloat(document.getElementById("clientInvoiceAmount").value);
+                    const clientInvoiceDetails = document.getElementById("clientInvoiceDetails").value;
+
+                    if (!clientInvoiceDescription || isNaN(clientInvoiceAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const clientInvoice = {
+                        description: clientInvoiceDescription,
+                        amount: clientInvoiceAmount,
+                        details: clientInvoiceDetails,
+                    };
+
+                    clientInvoices.push(clientInvoice);
+
+                    // Display client invoice (you can implement display logic here)
+                    alert(`Client Invoice Generated:\nDescription: ${clientInvoice.description}\nAmount: $${clientInvoice.amount.toFixed(2)}\nDetails: ${clientInvoice.details}`);
+
+                    document.getElementById("clientInvoiceDescription").value = "";
+                    document.getElementById("clientInvoiceAmount").value = "";
+                    document.getElementById("clientInvoiceDetails").value = "";
+                });
+
+                document.getElementById("retainageManagementForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const retainageDescription = document.getElementById("retainageDescription").value;
+                    const retainageAmount = parseFloat(document.getElementById("retainageAmount").value);
+
+                    if (!retainageDescription || isNaN(retainageAmount)) {
+                        alert("Please fill in all required fields.");
+                        return;
+                    }
+
+                    const retainage = {
+                        description: retainageDescription,
+                        amount: retainageAmount,
+                    };
+
+                    retainages.push(retainage);
+
+                    // Display retainage (you can implement display logic here)
+                    alert(`Retainage Created:\nDescription: ${retainage.description}\nAmount: $${retainage.amount.toFixed(2)}`);
+
+                    document.getElementById("retainageDescription").value = "";
+                    document.getElementById("retainageAmount").value = "";
+                });
+
+                function generateBillingReport() {
+                    // Generate billing report (you can implement report generation logic here)
+                    alert("Billing report generated successfully!");
+
+                    // Display the download link
+                    document.getElementById("downloadReportLink").style.display = "block";
+                }
+            </script>
+        </div>

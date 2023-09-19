@@ -1,0 +1,185 @@
+        <!-- Project Scheduling Section -->
+        <div id="scheduling" style="display: none;">
+            <h2>Project Scheduling</h2>
+            <style>
+                .gantt-container {
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .scheduling-buttons {
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                }
+                .scheduling-buttons button {
+                    margin-right: 10px;
+                }
+                .scheduling-buttons button:last-child {
+                    margin-right: 0;
+                }
+                .save-button {
+                    text-align: center;
+                }
+                .save-button button {
+                    background-color: #007bff;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                }
+                .save-button button:hover {
+                    background-color: #0056b3;
+                }
+            </style>
+            <link rel="stylesheet" href="../../static/gantt/dist/frappe-gantt.css" />
+            <script src="../../static/gantt/dist/frappe-gantt.js"></script>
+            <div class="gantt-container">
+                <div class="gantt-target-scheduling"></div>
+            <br>
+            <!-- Add your buttons here -->
+            <div class="scheduling-buttons">
+                <button onclick="changeView('Quarter Day')">Quarter Day</button>
+                <button onclick="changeView('Half Day')">Half Day</button>
+                <button onclick="changeView('Day')">Day</button>
+                <button onclick="changeView('Week')">Week</button>
+                <button onclick="changeView('Month')">Month</button>
+            </div>
+        
+            <!-- ADD Activity Form -->
+            <form id="Insert" name="Insert"  method="POST">
+                {% csrf_token %}
+                <p><h4>Add Activity</h4> Note: you can select multiple activity as predecessor use 'Ctrl +'</p>
+                <select id="name" name="name" placeholder="Enter Activity Name">
+                <input type="date" id="start" name="start" placeholder="Expected Start Date">
+                <input type="date" id="end" name="end" placeholder="Expected End Date">
+                <select name="depedency" id="depedency"  multiple="multiple" aria-placeholder="Enter Dependency">
+                    <!--
+                    {% for x in TASK %}
+                    <option value="{{x.id}}">{{x.name}}</option>
+                    {% endfor %}
+                    -->
+                  
+                </select>
+                <input type="submit" value="Add Activity" onclick="addActivity()">
+            </form>
+            <br>
+            <!-- Delete Activity Form -->
+	
+	
+            <form id="Delete" action=""  method="POST">
+                {% csrf_token %}
+                <p><h4>Delete Task</h4> Note: This will only remove from scheduling part not from Project</p>
+                <select name="activity" id="activity" aria-placeholder="Select Activity">
+                    {% for x in TASK%}
+                    <option value="{{x.id}}">{{x.name}}</option>
+                    {% endfor%}
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+
+            </div>
+            <br>
+
+                    
+            <!-- Save Button -->
+            <div class="save-button" >
+                <button name="save" onclick="saveData()">Save</button>
+            </div>
+
+        
+            <script>
+                function scheduling_init(){
+                    alert(JSON.stringify(api_data));
+                    load_data();
+                    //planning_task= api_data.activities;
+                    scheduling_preload();
+                }
+                
+                function scheduling_preload(){
+                  tasks=api_data.scheduling;
+                   }
+                
+                function activitySelectionView() {
+                    for (i = 0, len = api_data.activities.length, text = ""; i < len; i++) {
+                        text += "<option value="+api_data.activities[i].id+">"+api_data.activities[i].shortName+"</option>";
+                      }
+                    document.getElementById("name").innerHTML = text;    
+                }
+                activitySelectionView();
+                function activityView() {
+                    for (i = 0, len = tasks.length, text = ""; i < len; i++) {
+                        text += "<option value="+tasks[i].id+">"+tasks[i].name+"</option>";
+                      }
+                    document.getElementById("depedency").innerHTML = text;    
+                }
+                activityView();
+                var gantt_chart_scheduling = new Gantt(".gantt-target-scheduling", tasks, {
+                    header_height: 50,
+                    column_width: 30,
+                    step: 24,
+                    view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                    bar_height: 20,
+                    bar_corner_radius: 3,
+                    arrow_curve: 5,
+                    padding: 18,
+                    view_mode: 'Day',
+                    date_format: 'YYYY-MM-DD',
+                    language: 'en',
+                    on_click: task => {
+                        console.log(task);
+                    },
+                    on_date_change: (task, start, end) => {
+                        console.log(task, start, end);
+                    },
+                    on_progress_change: (task, progress) => {
+                        console.log(task, progress);
+                    },
+                    on_view_change: (mode) => {
+                        console.log(mode);
+                    },
+                    view_mode: 'Week',
+                    language: 'en'
+                });
+        
+                gantt_chart_scheduling.change_view_mode('Week');
+        
+                // Function to change the view mode
+                function changeView(mode) {
+                    gantt_chart_scheduling.change_view_mode(mode);
+                }
+        
+                // Function to add activity
+                function addActivity() {
+                    // Get form values and add a new task to the Gantt chart
+                    var activityName = document.getElementById('name').value;
+                    var startDate = document.getElementById('start').value;
+                    var endDate = document.getElementById('end').value;
+                    var dependencies = document.getElementById('depedency').selectedOptions;
+                    var dependencyValues = Array.from(dependencies).map(({ value }) => value);
+        
+                    var newTask = {
+                        start: startDate,
+                        end: endDate,
+                        name: activityName,
+                        id: tasks.length + 1, // Generate a unique ID for the task
+                        progress: 0, // Set initial progress to 0
+                        dependencies: dependencyValues.join(',')
+                    };
+        
+                    tasks.push(newTask);
+        
+                    // Refresh the Gantt chart
+                    gantt_chart_scheduling.refresh(tasks);
+                    activityView();
+                }
+        
+                // Function to save data (placeholder function)
+                function saveData() {
+                    alert('Data saved successfully!');
+                    api_data.scheduling=tasks;
+                }
+            </script>
+        </div>

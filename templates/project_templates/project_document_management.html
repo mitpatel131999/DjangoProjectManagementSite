@@ -1,0 +1,355 @@
+        <!--Document Management-->
+        <div id="document_management" style="display: none;">
+            <h3>Document Management</h3>
+        
+            <!-- Document upload form -->
+            <form id="documentUploadForm">
+                <div class="form-group">
+                    <label for="activityName">Activity Name:</label>
+                    <input type="text" class="form-control" id="activityName" placeholder="Enter Activity Name">
+                </div>
+                <div class="form-group">
+                    <label for="activityId">Activity ID:</label>
+                    <input type="text" class="form-control" id="activityId" placeholder="Enter Activity ID">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" rows="3" placeholder="Enter Description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes:</label>
+                    <textarea class="form-control" id="notes" rows="3" placeholder="Enter Notes"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="file">Upload Document:</label>
+                    <input type="file" class="form-control-file" id="file" accept=".pdf, .doc, .docx">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        
+            <!-- List of uploaded documents -->
+            <h4>Uploaded Documents</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Activity Name</th>
+                        <th>Activity ID</th>
+                        <th>Description</th>
+                        <th>Notes</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody id="documentList">
+                    <!-- Display uploaded documents here -->
+                </tbody>
+            </table>
+        
+        <style>
+            /* CSS styling for the Document Management section */
+            #document_management {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+        
+            #document_management h3 {
+                color: #343a40;
+            }
+        
+            /* Style form inputs and buttons */
+            .form-group {
+                margin-bottom: 15px;
+            }
+        
+            .form-control {
+                width: 100%;
+            }
+        
+            /* Style the document list table */
+            .table {
+                background-color: #fff;
+            }
+        </style>
+        
+        <script>
+            // JavaScript for handling form submissions and updating the document list
+            document.getElementById("documentUploadForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent form submission
+                // Add code to handle document upload and update the document list
+                // You can use JavaScript to create new rows in the document list table dynamically.
+            });
+        </script>
+
+            <br>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <!-- Include CKEditor library -->
+            <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+            
+            <h3>Request for Information (RFI)</h3>
+            <form id="rfiForm">
+                <div class="mb-3">
+                    <label for="recipient" class="form-label">Recipient:</label>
+                    <input type="text" class="form-control" id="recipient" required>
+                </div>
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Subject:</label>
+                    <input type="text" class="form-control" id="subject" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <!-- CKEditor replaces the textarea for the description -->
+                    <div id="editor"></div>
+                </div>
+          
+                
+                <div class="mb-3">
+                    <div id="editor-container">
+                        <canvas id="editor"></canvas>
+                    </div>
+    
+                    <input type="file" id="file-input">
+                    <button id="load-image">Load Image/PDF</button>
+                    <button id="draw-line">Draw Line</button>
+                    <button id="highlight-text">Highlight Text</button>
+                    <button id="save">Save</button>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="attachments" class="form-label">Attachments:</label>
+                    <input type="file" class="form-control" id="attachments" multiple>
+                </div>
+                <button type="submit" class="btn btn-primary">Create RFI</button>
+            </form>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.min.js"></script>
+
+            <script>
+                // Initialize CKEditor
+                ClassicEditor
+                    .create(document.querySelector('#editor'), {
+                        // CKEditor configuration options
+                    })
+                    .then(editor => {
+                        console.log('Editor was initialized', editor);
+                    })
+                    .catch(error => {
+                        console.error('Editor initialization failed', error);
+                    });
+        
+                // Handle form submission
+                document.getElementById("rfiForm").addEventListener("submit", function(event) {
+                    event.preventDefault();
+                    // Handle form submission (e.g., send data to the backend)
+                    const recipient = document.getElementById("recipient").value;
+                    const subject = document.getElementById("subject").value;
+                    const description = CKEditor.instances.editor.getData(); // Get CKEditor content
+                    const attachments = document.getElementById("attachments").files;
+        
+                    // You can send this data to the backend for further processing
+                    // Implement AJAX requests or use a JavaScript framework for this purpose
+                    console.log("Recipient:", recipient);
+                    console.log("Subject:", subject);
+                    console.log("Description:", description);
+                    console.log("Attachments:", attachments);
+                });
+            </script>
+                
+                <!-- Editor Content-->
+                <style>
+                    /* Your CSS styles for the editor go here */
+                    #editor-container {
+                        width: 100%;
+                        height: 500px;
+                        border: 1px solid #ccc;
+                        position: relative;
+                    }
+                    #editor {
+                        width: 100%;
+                        height: 100%;
+                    }
+                </style>
+                
+
+                <script>
+                    // Your JavaScript code for the editor goes here
+
+                    const editorCanvas = document.getElementById('editor');
+                    const ctx = editorCanvas.getContext('2d');
+                    let image = null;
+
+                    document.getElementById('load-image').addEventListener('click', () => {
+                        const fileInput = document.getElementById('file-input');
+                        fileInput.click();
+
+                        fileInput.addEventListener('change', () => {
+                            const file = fileInput.files[0];
+                            if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                    if (file.type.startsWith('image/')) {
+                                        const img = new Image();
+                                        img.src = reader.result;
+                                        img.onload = () => {
+                                            ctx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+                                            ctx.drawImage(img, 0, 0, editorCanvas.width, editorCanvas.height);
+                                            image = img;
+                                        };
+                                    } else if (file.type === 'application/pdf') {
+                                        // Load and render PDF (requires a PDF rendering library)
+                                        // Example: https://mozilla.github.io/pdf.js/
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                            } else {
+                                alert('Unsupported file format. Please select an image or PDF.');
+                            }
+                        });
+                    });
+
+                    document.getElementById('draw-line').addEventListener('click', () => {
+                            // Get the canvas context
+                            const ctx = editorCanvas.getContext('2d');
+
+                            // Set line properties (e.g., color, thickness)
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 2;
+
+                            // Start drawing when the mouse is pressed
+                            editorCanvas.addEventListener('mousedown', startDrawing);
+
+                            // Stop drawing when the mouse is released
+                            editorCanvas.addEventListener('mouseup', stopDrawing);
+                            
+                            let isDrawing = false;
+
+                            function startDrawing(event) {
+                                isDrawing = true;
+                                ctx.beginPath();
+                                ctx.moveTo(event.clientX - editorCanvas.getBoundingClientRect().left, event.clientY - editorCanvas.getBoundingClientRect().top);
+                            }
+
+                            function stopDrawing() {
+                                isDrawing = false;
+                                ctx.closePath();
+                            }
+
+                            // Continue drawing as the mouse moves
+                            editorCanvas.addEventListener('mousemove', draw);
+
+                            function draw(event) {
+                                if (!isDrawing) return;
+                                ctx.lineTo(event.clientX - editorCanvas.getBoundingClientRect().left, event.clientY - editorCanvas.getBoundingClientRect().top);
+                                ctx.stroke();
+                            }
+                        });
+
+
+                        document.getElementById('save').addEventListener('click', () => {
+                                // If you're editing an image
+                                if (image) {
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    canvas.width = editorCanvas.width;
+                                    canvas.height = editorCanvas.height;
+                                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                                    // You can save the edited image as a data URL or perform further processing (e.g., upload to a server)
+                                    const editedImageDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+                                    
+                                    // To save as a file, you would need server-side code, such as Node.js or PHP, to handle the file creation and download.
+                                    // On the client-side, you can create a download link like this:
+                                    const a = document.createElement('a');
+                                    a.href = editedImageDataUrl;
+                                    a.download = 'edited_image.jpg';
+                                    a.click();
+                                }
+                                
+                                // If you're editing a PDF (using PDF.js), you would need to implement PDF saving logic.
+                                // This typically involves generating a new PDF with the edited content and downloading it.
+                            });
+
+                            document.getElementById('highlight-text').addEventListener('click', () => {
+                                        // PDF.js worker URL, change to the correct path
+                                        const workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+                                        // PDF file URL, change to your PDF file
+                                        const pdfFile = 'example.pdf';
+
+                                        // Text to search and highlight
+                                        const searchText = 'Your text to highlight';
+
+                                        // Initialize PDF.js
+                                        pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+
+                                        // Fetch the PDF file
+                                        fetch(pdfFile)
+                                            .then(response => response.arrayBuffer())
+                                            .then(data => {
+                                                // Load the PDF document
+                                                return pdfjsLib.getDocument({ data }).promise;
+                                            })
+                                            .then(pdf => {
+                                                // Number of pages in the PDF
+                                                const numPages = pdf.numPages;
+
+                                                // Function to search and highlight text on a page
+                                                const highlightTextOnPage = (pageNum, text) => {
+                                                    pdf.getPage(pageNum).then(page => {
+                                                        return page.getTextContent().then(content => {
+                                                            content.items.forEach(item => {
+                                                                if (item.str.includes(text)) {
+                                                                    const textDiv = document.createElement('div');
+                                                                    textDiv.className = 'highlight';
+                                                                    textDiv.style.position = 'absolute';
+                                                                    textDiv.style.left = `${item.transform[4]}px`;
+                                                                    textDiv.style.top = `${item.transform[5] - 10}px`; // Adjust the vertical position as needed
+                                                                    textDiv.style.width = `${item.width}px`;
+                                                                    textDiv.style.height = `${item.height}px`;
+                                                                    textDiv.style.backgroundColor = 'yellow'; // Highlight color
+                                                                    document.getElementById(`page${pageNum}`).appendChild(textDiv);
+                                                                }
+                                                            });
+                                                        });
+                                                    });
+                                                };
+
+                                                // Iterate through each page and highlight text
+                                                for (let i = 1; i <= numPages; i++) {
+                                                    // Create a container for each page
+                                                    const pageContainer = document.createElement('div');
+                                                    pageContainer.className = 'page-container';
+                                                    pageContainer.id = `page${i}`;
+                                                    document.body.appendChild(pageContainer);
+
+                                                    // Render the page content
+                                                    pdf.getPage(i).then(page => {
+                                                        const canvas = document.createElement('canvas');
+                                                        pageContainer.appendChild(canvas);
+                                                        const viewport = page.getViewport({ scale: 1.5 });
+                                                        canvas.height = viewport.height;
+                                                        canvas.width = viewport.width;
+
+                                                        const renderContext = {
+                                                            canvasContext: canvas.getContext('2d'),
+                                                            viewport: viewport,
+                                                        };
+
+                                                        page.render(renderContext).promise.then(() => {
+                                                            // After rendering, highlight text on the page
+                                                            highlightTextOnPage(i, searchText);
+                                                        });
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error loading PDF:', error);
+                                            });
+                                    });
+
+                </script>
+                <!-- Include PDF.js scripts -->
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.js"></script>
+
+
+        </div>
