@@ -28,8 +28,12 @@ urlpatterns=[
     
     #''' For User Specific Activity '''
     path('user/<int:id>',views.UserActivity.user,name='user'),
-    path('dashboard/<int:id>',views.UserActivity.dashboard,name='dashboard'),
-    path('profile/<int:id>',views.UserActivity.profile,name='profile'),
+    #path('dashboard/<int:id>',views.UserActivity.dashboard,name='dashboard'),
+    #path('profile/<int:id>',views.UserActivity.profile,name='profile'),
+    #''' For User api'''
+    path('user/api-load/<int:id>',views.UserApi.userApiLoadData,name='userLoadData'),
+    path('user/api-upload/<int:id>',views.UserApi.userApiUpLoadData,name='userUpLoadData'),
+    
     
     #'''For Project Management'''
     path('project/<int:id>',views.Project.project,name='project'),

@@ -37,7 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 '''
-Experiment
+Experiment for project scheduling asd their data typr for understanding only no need to mark it hard
 '''
 TASK = [
 			{
@@ -99,12 +99,63 @@ TASK = [
 		]
 
 '''
-Manageing the data upload and load to server and web pages
+Manageing the data upload and load to server and web pages just for  testing front end still need to add data into database and making proper permissions and all.
 
 Needs to add security measure in order to match the security
 '''
 from django.http import JsonResponse
 import json
+
+
+class USERDATA:
+    main_data={
+            'activities':[],
+            'quotations':[],
+            'scheduling':[],
+          }
+user_main_data=USERDATA()
+
+
+
+class UserApi:
+    
+    def userApiLoadData(request,id):
+        print('loading the data',id)
+        print(user_main_data.main_data)
+        response = {'server_data' : user_main_data.main_data}
+        return JsonResponse(response)
+    
+    def userApiUpLoadData(request,id):
+
+        print('uploading the data',id)
+        print(request.method)
+        data={}
+        if request.method == 'POST':
+            ajax_data=request.POST.get('ajax_data')
+            print(ajax_data,type(ajax_data))
+            ar = json.loads(ajax_data)
+            print('ar',ar,type(ar))
+            user_main_data.main_data=ar
+            print('user_main_data',user_main_data.main_data)
+            response = {'server_data' : user_main_data.main_data}
+            return JsonResponse(response)
+        print(data)
+        return JsonResponse(data)
+
+'''
+user Activity
+'''
+class UserActivity:
+    # we are only using below function rest of the function are for future use
+    def user(request,id):
+        return render(request,'user_templates/user_update.html')
+    
+    def dashboard(request,id):
+        return render(request,'user_templates/dashboard.html')
+    
+    def profile(request,id):
+        return render(request,'user_templates/profile.html')
+    
 
 class DATA:
     main_data={
@@ -113,6 +164,7 @@ class DATA:
             'scheduling':[],
           }
 main_data=DATA()
+
 
 
 class ProjectApi:
@@ -147,13 +199,14 @@ Successfully manage to send request from web page get server and also able to re
 
     
 class Project:
+    # we are only using below function rest of the function are for future use
     def project(request,id):
         main_data={
             'activities':[],
           }
         send_web={ 'id':id}
         return  render(request,'project_templates/project.html',send_web)
-
+    
     def project_introduction(request,id):
         return  render(request,'project_templates/project_introduction.html')
     
@@ -284,19 +337,7 @@ def index(request):
     context={'mail_send': False ,'sign_in':sign_in}
     return render(request,'index.html', context)
 
-'''
-user Activity
-'''
-class UserActivity:
-    def user(request,id):
-        return render(request,'user_templates/user_update.html')
-    
-    def dashboard(request,id):
-        return render(request,'user_templates/dashboard.html')
-    
-    def profile(request,id):
-        return render(request,'user_templates/profile.html')
-    
+
 
 '''
 user Auth
